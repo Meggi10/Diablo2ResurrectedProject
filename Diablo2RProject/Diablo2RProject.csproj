@@ -70,6 +70,7 @@
     <Compile Include="Tile.cs" />
     <Compile Include="TileRecord.cs" />
     <Compile Include="TileType.cs" />
+    <Compile Include="TPixmap.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="WallRecord.cs" />
     <EmbeddedResource Include="Form1.resx">

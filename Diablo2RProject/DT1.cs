@@ -9,6 +9,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Common;
 
 namespace Diablo2RProject
 {
@@ -66,8 +67,9 @@ namespace Diablo2RProject
                 throw new InvalidDataException("Błąd parsowania pliku DT1", ex);
             }
             reader.Close();
-            GfxDecode gfxdecode = new GfxDecode();
-            gfxdecode.DecodeTileGraphics(dt1);
+            //na razie żeby zobaczyć co było OK
+            //GfxDecode gfxdecode = new GfxDecode();
+            //gfxdecode.DecodeTileGraphics(dt1);
             return dt1;
         }
 
@@ -171,6 +173,62 @@ namespace Diablo2RProject
             }
         }
 
+        private void DecodeIsometric(Block block, int w, int yOffset)
+        {
+            //Block block = new Block();
+            const int blockDataLength = 256;
+            int[] xJump = { 14, 12, 10, 8, 6,   4,  2,  0,  2,  4,  6, 8, 10, 12, 14 }; //16 - nbPix /2
+            int[] nbPix = { 4,  8,  12, 16, 20, 24, 28, 32, 28, 24, 20, 16, 12, 8, 4 };
+            int blockX = block.X;
+            int blockY = block.Y;
+            int length = blockDataLength;
+            int x = 0;
+            int y = 0;
+            int index = 0;
+
+            while (length > 0)
+            {
+                x = xJump[y];
+                int n = nbPix[y];
+                length -= n;
+
+                while (n > 0)
+                {
+                    int offset = ((blockY + y + yOffset) * w) + (blockX + x);
+                    if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
+                    {
+                        block.PixelData[offset] = block.EncodingData[index];
+                    }
+
+                    x++;
+                    n--;
+                    index++;
+                }
+                y++;
+            }
+        }
+
+        public void DecodeIsometric(Block block, byte[] pixels)
+        {
+            //var tile = block.Tile;
+            var blockWidth = 32;
+            var blockHeight = 15;
+
+            int pos = 0;
+            var pixmap = new TPixmap(blockWidth, blockHeight);
+            for (int y = 0; y < pixmap.Height; y++)
+            {
+                var n = y < pixmap.Height / 2 ? y : pixmap.Height - 1 - y;
+                var r = 2 + 2 * n;
+                for (int x = pixmap.Width / 2 - r; x < pixmap.Width / 2 + r; x++)
+                {
+                    var brightness = pixels[pos++];
+                    pixmap[x, y] = DT1.DefaultPalette[brightness].ToArgb();
+                }
+            }
+            block.Image = pixmap.Image;
+        }
+
         private void DecodeBlockHeaders(BinaryReader reader, Tile tile)
         {
             //const int BlockXYBytes = 2;
@@ -192,6 +250,7 @@ namespace Diablo2RProject
                 }
 
                 var block = tile.Block[blockIndex];
+                block.Tile = tile;
                 block.X = reader.ReadInt16();
                 block.Y = reader.ReadInt16();
                 reader.ReadInt16();
@@ -217,10 +276,110 @@ namespace Diablo2RProject
             
                 foreach (var block in tile.Block)
                 {
-                    reader.BaseStream.Position = tile.BlockHeaderPointer + block.FileOffset;    
-                    block.EncodingData = reader.ReadBytes(block.Length);
+                    reader.BaseStream.Position = tile.BlockHeaderPointer + block.FileOffset;
+                //block.EncodingData = reader.ReadBytes(block.Length);
+                    
+                    DecodeTileGraphics(reader, block);
                 }
             
+        }
+
+        public void DecodeTileGraphics(BinaryReader reader, Block block)
+        {
+            var tile = block.Tile;
+            var yOffset = DetermineYOffset();
+
+            var tileWidth = tile.Width;
+            var tileHeight = tile.Height;
+
+            if (tileHeight < 0)
+                tileHeight = -tileHeight;
+
+            //Block block = tile.Block[0];
+            //foreach (var block in tile.Blocks)
+            block.PixelData = new byte[tileWidth * tileHeight];
+            block.EncodingData = reader.ReadBytes(block.Length);
+            if (block.Format == DT1.BlockDataFormat.Isometric)
+            {
+                DecodeIsometric(block, block.EncodingData);
+                //DecodeIsometric(block, tileWidth, yOffset);
+            }
+            else
+            {
+                DecodeRLE(block, tileWidth, yOffset);
+            }
+
+            //block.Image = new System.Drawing.Bitmap(tileWidth, tileHeight);
+
+            //for (int x = 0; x < tileWidth; x++)
+            //{
+            //    for (int y = 0; y < tileHeight; y++)
+            //    {
+            //        var brightness = block.PixelData[y * tileWidth + x];
+            //        block.Image.SetPixel(x, y, DT1.DefaultPalette()[brightness]);
+            //    }
+            //}
+        }
+
+        public int DetermineYOffset()
+        {
+            int yOffset = 0;
+            foreach (var tile in Tiles)
+            {
+                foreach (var block in tile.Block)
+                {
+                    if (block.Y < yOffset)
+                    {
+                        yOffset = block.Y;
+                    }
+                }
+            }
+
+            return yOffset;
+        }
+
+        private void DecodeRLE(Block block, int w, int yOffset)
+        {
+            //Block block = new Block();
+            int X = block.X;
+            int Y = block.Y;
+            int x = 0;
+            int y = 0;
+
+            int index = 0;
+            int length = block.Length;
+
+            while (length > 0)
+            {
+                byte b1 = block.EncodingData[index];
+                byte b2 = block.EncodingData[index + 1];
+                index += 2;
+                length -= 2;
+
+                if ((b1 | b2) == 0)
+                {
+                    x = 0;
+                    y++;
+                    continue;
+                }
+
+                x += b1;
+                length -= b2;
+
+                while (b2 > 0)
+                {
+                    int offset = ((Y + y + yOffset) * w) + (X + x);
+                    if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
+                    {
+                        block.PixelData[offset] = block.EncodingData[index];
+                    }
+
+                    index++;
+                    x++;
+                    b2--;
+                }
+            }
+
         }
 
         public static List<Color> Palette()
@@ -229,13 +388,15 @@ namespace Diablo2RProject
             {
                 if (palette == null)
                 {
-                    palette = DefaultPalette();
+                    palette = DefaultPalette;
                 }
             }
             return palette;
         }
 
-        public static List<Color> DefaultPalette()
+        public static List<Color> DefaultPalette;
+
+        static List<Color> GetDefaultPalette()
         {
             const int numberColors = 256;
             var palette = new List<Color>();
@@ -246,6 +407,11 @@ namespace Diablo2RProject
             }
 
             return palette;
+        }
+
+        static DT1()
+        {
+            DefaultPalette = GetDefaultPalette();
         }
     }
 }
