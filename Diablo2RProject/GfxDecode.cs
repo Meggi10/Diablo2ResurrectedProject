@@ -39,7 +39,7 @@ namespace Diablo2RProject
                         for (int y = 0; y < tileHeight; y++)
                         {
                             var brightness = block.PixelData[y * tileWidth + x];
-                            block.Image.SetPixel(x, y, DT1.DefaultPalette()[brightness]);
+                            block.Image.SetPixel(x, y, DT1.DefaultPalette[brightness]);
                         }
                     }
                 }

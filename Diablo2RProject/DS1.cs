@@ -240,6 +240,7 @@ namespace Diablo2RProject
                         var tileFile = ReadZString(reader);
                         tileFile = path + Path.GetFileNameWithoutExtension(tileFile) + ".dt1";
                         //ds1.Files.Add(fileName);
+
                         var dt1 = DT1.FromBytes(File.ReadAllBytes(tileFile), null);
                         ds1.TileSet.AddRange(dt1.Tiles);
                     }

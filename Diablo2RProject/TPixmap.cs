@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Diablo2RProject;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -40,7 +41,6 @@ namespace Common
             Array.Copy(other.Pixels, 0, result.Pixels, Pixels.Length, other.Pixels.Length);
             return result;
         }
-
         public Bitmap Image
         {
             get

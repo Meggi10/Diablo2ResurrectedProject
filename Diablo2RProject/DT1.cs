@@ -6,10 +6,13 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms.VisualStyles;
 using Common;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Diablo2RProject
 {
@@ -277,7 +280,7 @@ namespace Diablo2RProject
                 foreach (var block in tile.Block)
                 {
                     reader.BaseStream.Position = tile.BlockHeaderPointer + block.FileOffset;
-                //block.EncodingData = reader.ReadBytes(block.Length);
+                    //block.EncodingData = reader.ReadBytes(block.Length);
                     
                     DecodeTileGraphics(reader, block);
                 }
@@ -299,6 +302,7 @@ namespace Diablo2RProject
             //foreach (var block in tile.Blocks)
             block.PixelData = new byte[tileWidth * tileHeight];
             block.EncodingData = reader.ReadBytes(block.Length);
+            block.Palette = DT1.Palette("act1\\pal.dat");
             if (block.Format == DT1.BlockDataFormat.Isometric)
             {
                 DecodeIsometric(block, block.EncodingData);
@@ -338,11 +342,12 @@ namespace Diablo2RProject
             return yOffset;
         }
 
+        //Algorytm RLE prawdobodobnie jest dobrze napisany i prawidłowo odczytuje dane
         private void DecodeRLE(Block block, int w, int yOffset)
         {
             //Block block = new Block();
-            int X = block.X;
-            int Y = block.Y;
+            int blockX = block.X;
+            int blockY = Math.Abs(block.Y);
             int x = 0;
             int y = 0;
 
@@ -363,12 +368,12 @@ namespace Diablo2RProject
                     continue;
                 }
 
-                x += b1;
-                length -= b2;
+                x += (int)b1;
+                length -= (int)b2;
 
                 while (b2 > 0)
                 {
-                    int offset = ((Y + y + yOffset) * w) + (X + x);
+                    int offset = ((blockY + y + yOffset) * w) + (blockX + x);
                     if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
                     {
                         block.PixelData[offset] = block.EncodingData[index];
@@ -378,30 +383,135 @@ namespace Diablo2RProject
                     x++;
                     b2--;
                 }
+
+                //for (int i = 0; i < b2; i++)
+                //{
+                //    int offset = ((blockY + y + yOffset) * w) + (blockX + x);
+                //    if (offset >=0 && offset < block.PixelData.Length)
+                //    {
+                //        byte pixelValue = block.EncodingData[index];
+                //        block.PixelData[offset] = pixelValue;
+                //    }
+                //    index++;
+                //    x++;
+                //}
             }
 
-        }
-
-        public static List<Color> Palette()
-        {
-            var palette = new List<Color>();
-            {
-                if (palette == null)
-                {
-                    palette = DefaultPalette;
-                }
-            }
-            return palette;
         }
 
         public static List<Color> DefaultPalette;
+        private static bool paletteLoaded = false;
+        private static byte[] paletteData;
+        //private static string fileName;
+
+        //Problem może leżeć w braku konwersji surowych danych na rzeczywiste RGB
+        public static void LoadPalette(string fileName)
+        {
+            if (!paletteLoaded) //if (!paletteLoaded && paletteData != null)
+            {
+                //Palette(fileName);
+                //DefaultPalette = new List<Color>();
+                DefaultPalette.Clear();
+                for (int i = 0; i < 256; i++)
+                {
+                    if (i * 3 + 2 < paletteData.Length)
+                    {
+                        Color from_idx = Color.FromArgb(255,
+                            paletteData[i * 3],
+                            paletteData[i * 3 + 1],
+                            paletteData[i * 3 + 2]);
+                        DefaultPalette.Add(from_idx);
+                    }
+                }
+                paletteLoaded = true;
+            }
+        }
+
+        public static void SetPaletteData(byte[] data)
+        {
+            paletteData = data;
+            paletteLoaded = false;
+        }
+
+        public static string ReadZString(BinaryReader reader)
+        {
+            //List<byte> bytes = new List<byte>();
+            //byte b;
+            //while ((b = reader.ReadByte()) != 0)
+            //{
+            //    bytes.Add(b);
+            //}
+            //return Encoding.ASCII.GetString(bytes.ToArray());
+
+            var result = "";
+            var ch = reader.ReadChar();
+
+            while (ch != 0)
+            {
+                result += ch;
+                ch = reader.ReadChar();
+            }
+            return result;
+        }
+
+
+        public static List<Color> Palette(string fileName)
+        {
+            //LoadPalette();
+            //InitializePalette();
+            //if (DefaultPalette == null || DefaultPalette.Count == 0)
+            //{
+            //    DefaultPalette = GetDefaultPalette();
+            //}
+            //return DefaultPalette;
+
+            //var path = Path.GetDirectoryName(fileName) + "/";
+            //var stream = new FileStream(fileName, FileMode.Open);
+            //var reader = new BinaryReader(stream);
+            //var paletteData = ReadZString(reader);
+            //paletteData = path + Path.GetFileNameWithoutExtension(paletteData) + ".dat";
+            //File.ReadAllBytes(paletteData);
+
+            //LoadPalette(fileName);
+            var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+            var reader = new BinaryReader(stream);
+            string palleteName = ReadZString(reader);
+            string directory = Path.GetDirectoryName(fileName);
+            //string fullPalettePath = Path.Combine(directory, palleteName + ".dat");
+
+            
+            //if (File.Exists(fullPalettePath))
+            //{
+            //var palette = new List<Color>();
+                byte[] data = File.ReadAllBytes(fileName);
+
+                if (data.Length >= 768)
+                {
+                    SetPaletteData(data);
+                    LoadPalette(fileName);
+                    //return DefaultPalette;
+                }
+            //else return GetDefaultPalette();
+            //}
+
+            //var palette = new List<Color>();
+            //{
+            //    if (palette == null)
+            //    {
+            //        palette = DefaultPalette;
+            //    }
+            //}
+
+            return GetDefaultPalette();
+
+        }
 
         static List<Color> GetDefaultPalette()
         {
             const int numberColors = 256;
             var palette = new List<Color>();
 
-            for ( int i = 0; i < numberColors; i++)
+            for (int i = 0; i < numberColors; i++)
             {
                 palette.Add(Color.FromArgb(255, i, i, i));
             }

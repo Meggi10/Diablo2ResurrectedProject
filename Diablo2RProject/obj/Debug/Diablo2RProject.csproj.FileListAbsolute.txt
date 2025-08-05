@@ -78,3 +78,13 @@ C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - main
 C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - main - 25.06.2025\Diablo2RProject\obj\Debug\Diablo2RProject.csproj.CoreCompileInputs.cache
 C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - main - 25.06.2025\Diablo2RProject\obj\Debug\Diablo2RProject.exe
 C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - main - 25.06.2025\Diablo2RProject\obj\Debug\Diablo2RProject.pdb
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\obj\Debug\Diablo2RProject.csproj.AssemblyReference.cache
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\obj\Debug\Diablo2RProject.DiabloForm.resources
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\obj\Debug\Diablo2RProject.Properties.Resources.resources
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\obj\Debug\Diablo2RProject.csproj.GenerateResource.cache
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\obj\Debug\Diablo2RProject.csproj.CoreCompileInputs.cache
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\obj\Debug\Diablo2RProject.exe
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\obj\Debug\Diablo2RProject.pdb
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\bin\Debug\Diablo2RProject.exe.config
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\bin\Debug\Diablo2RProject.exe
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\bin\Debug\Diablo2RProject.pdb

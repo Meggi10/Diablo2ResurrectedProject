@@ -12,35 +12,67 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using System.Xml.Serialization;
 
 namespace Diablo2RProject
 {
-    public partial class DiabloForm: Form
+    public partial class DiabloForm : Form
     {
         private DS1 loadedDS1;
         private DT1 loadedDT1;
         private Tile tile;
-        private Dictionary<(int Type, int Style, int Sequence), Tile> tileLookup;
+        private byte[] fileData;
+        //private Dictionary<(int Type, int Style, int Sequence), Tile> tileLookup;
         public DiabloForm()
         {
             InitializeComponent();
-            
+
         }
-        private void Button1_Click(object sender, EventArgs e)
+        public void Button1_Click(object sender, EventArgs e)
         {
             ImportStructure();
+            
+            //ImportMap();
         }
 
-        private void ImportStructure()
+
+
+        //ImportStructure(filename);
+
+        //public void ImportMap()
+        //{
+        //    var openFileDialog = new OpenFileDialog();
+        //    openFileDialog.Filter = "DS1 Files (*.ds1)|*.ds1|DT1 Files (*.dt1)|*.dt1|All Files (*.*)|*.*";
+        //    if (openFileDialog.ShowDialog() == DialogResult.OK)
+        //    {
+        //        DS1 ds1 = DS1.LoadFromFile(Name);
+        //        LoadStructure(ds1);
+        //    }
+        //}
+
+        public void ImportStructure()
         {
+            //ImportMap(filename);
             var openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "DS1 Files (*.ds1)|*.ds1|DT1 Files (*.dt1)|*.dt1|All Files (*.*)|*.*";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
+                //string ex = Path.GetDirectoryName(openFileDialog.FileName).ToLower();
+                //if (ex == ".ds1")
+                //{
+                    DS1 ds1 = DS1.LoadFromFile(openFileDialog.FileName);
+                    LoadStructure(ds1);
+                    //ImportMap();
+                //}
+               //else if (ex == ".dt1")
+               //{
+                    
+                   //DT1 dt1 = DT1.FromBytes(fileData, tile);
+               //}
+
                 //byte[] fileData = File.ReadAllBytes(openFileDialog.FileName);
-                DS1 ds1 = DS1.LoadFromFile(openFileDialog.FileName);
                 //var stream = new MemoryStream(fileData);
                 //var reader = new BinaryReader(stream);
 
@@ -54,24 +86,23 @@ namespace Diablo2RProject
                 //    var dt1 = DT1.FromBytes(File.ReadAllBytes(dt1File), null);
                 //    TileGraphic(dt1);
                 //}
-
-                LoadStructure(ds1);
+                //}
             }
         }
 
-        private void TileGraphic(DT1 dt1)
-        {
-            GfxDecode gfxdecode = new GfxDecode();
+        //private void TileGraphic(DT1 dt1)
+        //{
+        //    GfxDecode gfxdecode = new GfxDecode();
 
-            gfxdecode.DecodeTileGraphics(dt1);
+        //    gfxdecode.DecodeTileGraphics(dt1);
 
-            foreach (var tile in dt1.Tiles)
-            {
-                var key = (tile.Type, tile.Style, tile.Sequence);
-                if (!tileLookup.ContainsKey(key))
-                    tileLookup[key] = tile;
-            }
-        }
+        //    foreach (var tile in dt1.Tiles)
+        //    {
+        //        var key = (tile.Type, tile.Style, tile.Sequence);
+        //        if (!tileLookup.ContainsKey(key))
+        //            tileLookup[key] = tile;
+        //    }
+        //}
 
         private void LoadStructure(DS1 ds1)
         {
@@ -112,7 +143,6 @@ namespace Diablo2RProject
                             var tile = ds1.TileSet[wall.sequence];
                             if (tile != null)
                             {
-                                
                                 var image = tile.Block.FirstOrDefault()?.Image;
                                 if (image != null)
                                 {
@@ -121,15 +151,15 @@ namespace Diablo2RProject
                                 }
                             }
 
-                            Color color;
-                            if (tileType.IsUpperWall())
-                                color = Color.Teal;
-                            else if (tileType.IsLowerWall())
-                                color = Color.Gray;
-                            else if (tileType.IsSpecial())
-                                color = Color.Blue;
-                            else
-                                continue;
+                            //Color color;
+                            //if (tileType.IsUpperWall())
+                            //    color = Color.Teal;
+                            //else if (tileType.IsLowerWall())
+                            //    color = Color.Gray;
+                            //else if (tileType.IsSpecial())
+                            //    color = Color.Blue;
+                            //else
+                            //    continue;
 
                             Point[] isometric = new Point[]
                             {
@@ -139,12 +169,12 @@ namespace Diablo2RProject
                                 new Point(screenX + TileSizeX / 2, screenY + TileSizeY)
                             };
 
-                            using (Brush b = new SolidBrush(color))
-                            {
-                                graphics.FillPolygon(b, isometric);
-                            }
+                            //using (Brush b = new SolidBrush(color))
+                            //{
+                            //    graphics.FillPolygon(b, isometric);
+                            //}
 
-                            graphics.DrawPolygon(Pens.Black, isometric);
+                            graphics.DrawPolygon(Pens.Red, isometric);
                         }
                     }
                 }
