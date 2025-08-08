@@ -123,13 +123,18 @@ namespace Diablo2RProject
             Bitmap bitmap = new Bitmap(bmpWidth, bmpHeight);
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
-                graphics.Clear(Color.Black);
+                //Można to potem zmienić na czarny kolor. Na razie biały służy do testów (na czarnym słabo widać)
+                //co aktualnie się dzieje. Na przykładzie pliku facade1.ds1 można wnioskować, że to co widać na
+                //ekranie to skala odcieni szarości (piksele), które są widoczne dopiero po bardzo dużym zbliżeniu.
+                //Piksele renderują się jako poziome paski (od jasnych po ciemne - przechodzące), ale nie zapełniają
+                //całych przestrzeni (są oddalone od siebie w pionie), co powoduje jedynie widoczność poziomych linii.
+                graphics.Clear(Color.White);
 
                 for (int y = 0; y < ds1.Height; y++)
                 {
                     for (int x = 0; x < ds1.Width; x++)
                     {
-                        TileType tileType = default;
+                        //TileType tileType = default;
 
                         if (ds1.Tiles[y][x].FloorsShadow != null && ds1.Tiles[y][x].FloorsShadow.Count > 0)
                         {
@@ -143,9 +148,11 @@ namespace Diablo2RProject
                             var tile = ds1.TileSet[wall.sequence];
                             if (tile != null)
                             {
-                                var image = tile.Block.FirstOrDefault()?.Image;
+                                var image = tile.Block.FirstOrDefault()?.Image; 
                                 if (image != null)
                                 {
+                                    Console.WriteLine($"Drawign tile image: {image.Width}x{image.Height}");
+                                    Console.WriteLine($"Pixel sample {((Bitmap)image).GetPixel(10, 10)}");
                                     graphics.DrawImage(image, screenX, screenY);
                                     continue;
                                 }

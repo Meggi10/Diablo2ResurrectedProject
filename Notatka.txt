@@ -1,0 +1,11 @@
+Problem z wyświetleniem grafiki prawdopodobnie leży w konwesji kolorów. Wynika
+z tego, że algorytm RLE działa poprawnie (według obserwacji i dokonanych zmian).
+Nadal PixelData jest samymi zerami - ale to nie wyjaśnia czemu na przykładzie pliku
+facade1.ds1 można zobaczyć poziome linie w odcieniach szarości (jasny - ciemny),
+bardzo oddalonych od siebie w pionie.
+
+Na razie to obserwacja ze wprowadzonych zmian i jednego pliku, ale możliwe że
+trzeba isć tropem palety kolorów i ich konwersji na kolory rzeczywiste RGB.
+
+Pliki .png (zwłaszcza ten Bez tytułu_white) ukazuje to co jest opisane w tej notce
+(w dużym skrócie).

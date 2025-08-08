@@ -25,7 +25,7 @@ namespace Diablo2RProject
         public int Width { get; set;}
         public int Height { get; set;}
 
-        private byte ColorIndexAt(int x, int y)
+        public byte ColorIndexAt(int x, int y)
         {
             int absIndex = y * Width + x;
 
@@ -45,7 +45,7 @@ namespace Diablo2RProject
             return new Rectangle(0, 0, Width, Height);
         }
 
-        private Color At(int x, int y)
+        public Color At(int x, int y)
         {
             byte pallIndex = ColorIndexAt(x, y);
             

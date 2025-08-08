@@ -376,7 +376,10 @@ namespace Diablo2RProject
                     int offset = ((blockY + y + yOffset) * w) + (blockX + x);
                     if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
                     {
-                        block.PixelData[offset] = block.EncodingData[index];
+                        //block.PixelData[offset] = block.EncodingData[index];
+                        byte colorIndex = block.EncodingData[index];
+                        block.PixelData[offset] = colorIndex;
+                        block.At(x, y);
                     }
 
                     index++;
@@ -399,6 +402,7 @@ namespace Diablo2RProject
 
         }
 
+
         public static List<Color> DefaultPalette;
         private static bool paletteLoaded = false;
         private static byte[] paletteData;
@@ -417,9 +421,9 @@ namespace Diablo2RProject
                     if (i * 3 + 2 < paletteData.Length)
                     {
                         Color from_idx = Color.FromArgb(255,
-                            paletteData[i * 3],
-                            paletteData[i * 3 + 1],
-                            paletteData[i * 3 + 2]);
+                            paletteData[i * 3], //R
+                            paletteData[i * 3 + 1], //G
+                            paletteData[i * 3 + 2]); //B
                         DefaultPalette.Add(from_idx);
                     }
                 }
@@ -435,23 +439,23 @@ namespace Diablo2RProject
 
         public static string ReadZString(BinaryReader reader)
         {
-            //List<byte> bytes = new List<byte>();
-            //byte b;
-            //while ((b = reader.ReadByte()) != 0)
-            //{
-            //    bytes.Add(b);
-            //}
-            //return Encoding.ASCII.GetString(bytes.ToArray());
-
-            var result = "";
-            var ch = reader.ReadChar();
-
-            while (ch != 0)
+            List<byte> bytes = new List<byte>();
+            byte b;
+            while ((b = reader.ReadByte()) != 0)
             {
-                result += ch;
-                ch = reader.ReadChar();
+                bytes.Add(b);
             }
-            return result;
+            return Encoding.ASCII.GetString(bytes.ToArray());
+
+            //var result = "";
+            //var ch = reader.ReadChar();
+
+            //while (ch != 0)
+            //{
+            //    result += ch;
+            //    ch = reader.ReadChar();
+            //}
+            //return result;
         }
 
 
