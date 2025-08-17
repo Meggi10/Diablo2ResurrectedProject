@@ -88,3 +88,4 @@ C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.0
 C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\bin\Debug\Diablo2RProject.exe.config
 C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\bin\Debug\Diablo2RProject.exe
 C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\bin\Debug\Diablo2RProject.pdb
+C:\Users\magda\Desktop\Studia\Pr_inz\Diablo_2_Resurrected_Projects\D2RMap - 30.06.2025Git\Diablo2RProject\obj\Debug\Diablo2RProject.exe.config

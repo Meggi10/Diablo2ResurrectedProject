@@ -311,6 +311,7 @@ namespace Diablo2RProject
             else
             {
                 DecodeRLE(block, tileWidth, yOffset);
+                //block.DisplayImage();
             }
 
             //block.Image = new System.Drawing.Bitmap(tileWidth, tileHeight);
@@ -345,9 +346,18 @@ namespace Diablo2RProject
         //Algorytm RLE prawdobodobnie jest dobrze napisany i prawidłowo odczytuje dane
         private void DecodeRLE(Block block, int w, int yOffset)
         {
+            int pixelWritten = 0;
+            int outOfBoundsCount = 0;
+
+            //Console.WriteLine($"=== DecodeRLE START ===");
+            //Console.WriteLine($"blockX: {block.X}, blockY: {block.Y}");
+            //Console.WriteLine($"w: {w}, yOffset: {yOffset}");
+            //Console.WriteLine($"PixelData.Length: {block.PixelData?.Length}");
+            //Console.WriteLine($"EncodingData.Length: {block.EncodingData?.Length}");
+
             //Block block = new Block();
             int blockX = block.X;
-            int blockY = Math.Abs(block.Y);
+            int blockY = block.Y; //Math.Abs(block.Y);
             int x = 0;
             int y = 0;
 
@@ -361,8 +371,14 @@ namespace Diablo2RProject
                 index += 2;
                 length -= 2;
 
-                if ((b1 | b2) == 0)
+                //if (pixelWritten + outOfBoundsCount < 5)
+                //{
+                    //Console.WriteLine($"b1: {b1}, b2: {b2}, x: {x}, y: {y}");
+                //}
+
+                if (b1 == 0 && b2 == 0)
                 {
+                    //Console.WriteLine($"New line at y: {y}");
                     x = 0;
                     y++;
                     continue;
@@ -374,12 +390,35 @@ namespace Diablo2RProject
                 while (b2 > 0)
                 {
                     int offset = ((blockY + y + yOffset) * w) + (blockX + x);
+                    //if (pixelWritten + outOfBoundsCount < 10)
+                    //{
+                    //    Console.WriteLine($"Calculating offset: blockY({blockY}) + y({y}) + yOffset({yOffset}) = {blockY + y + yOffset}");
+                    //    Console.WriteLine($"  * w({w}) + blockX({blockX}) + x({x}) = offset {offset}");
+                    //    Console.WriteLine($"  PixelData.Length: {block.PixelData?.Length}");
+                    //}
+
                     if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
                     {
                         //block.PixelData[offset] = block.EncodingData[index];
                         byte colorIndex = block.EncodingData[index];
                         block.PixelData[offset] = colorIndex;
                         block.At(x, y);
+                        pixelWritten++;
+
+                        //if (pixelWritten <= 5)
+                        //{
+                        //    Console.WriteLine($"Wrote pixel {pixelWritten}: colorIndex {colorIndex} at offset {offset}");
+                        //}
+                    }
+                    else
+                    {
+                        outOfBoundsCount++;
+
+                        // DEBUGGING - dlaczego poza zakresem
+                        //if (outOfBoundsCount <= 5)
+                        //{
+                        //    Console.WriteLine($"Out of bounds #{outOfBoundsCount}: offset {offset}, PixelData.Length {block.PixelData?.Length}");
+                        //}
                     }
 
                     index++;
@@ -399,6 +438,10 @@ namespace Diablo2RProject
                 //    x++;
                 //}
             }
+            Console.WriteLine($"=== DecodeRLE END ===");
+            Console.WriteLine($"Pixels written: {pixelWritten}");
+            Console.WriteLine($"Out of bounds: {outOfBoundsCount}");
+            Console.WriteLine($"First 10 PixelData values: {string.Join(",", block.PixelData?.Take(10) ?? new byte[0])}");
 
         }
 

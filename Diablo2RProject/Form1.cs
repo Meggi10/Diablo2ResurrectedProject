@@ -128,7 +128,7 @@ namespace Diablo2RProject
                 //ekranie to skala odcieni szarości (piksele), które są widoczne dopiero po bardzo dużym zbliżeniu.
                 //Piksele renderują się jako poziome paski (od jasnych po ciemne - przechodzące), ale nie zapełniają
                 //całych przestrzeni (są oddalone od siebie w pionie), co powoduje jedynie widoczność poziomych linii.
-                graphics.Clear(Color.White);
+                graphics.Clear(Color.White); //graphics.Clear(Color.Black);
 
                 for (int y = 0; y < ds1.Height; y++)
                 {
@@ -151,8 +151,8 @@ namespace Diablo2RProject
                                 var image = tile.Block.FirstOrDefault()?.Image; 
                                 if (image != null)
                                 {
-                                    Console.WriteLine($"Drawign tile image: {image.Width}x{image.Height}");
-                                    Console.WriteLine($"Pixel sample {((Bitmap)image).GetPixel(10, 10)}");
+                                    //Console.WriteLine($"Drawign tile image: {image.Width}x{image.Height}");
+                                    //Console.WriteLine($"Pixel sample {((Bitmap)image).GetPixel(10, 10)}");
                                     graphics.DrawImage(image, screenX, screenY);
                                     continue;
                                 }

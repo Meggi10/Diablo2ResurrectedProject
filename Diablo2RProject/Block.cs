@@ -25,6 +25,22 @@ namespace Diablo2RProject
         public int Width { get; set;}
         public int Height { get; set;}
 
+        //public void DisplayImage()
+        //{
+        //    if (Width <= 0 || Height <= 0 || PixelData == null)
+        //        return;
+        //    Image = new Bitmap(Width, Height);
+
+        //    for (int y = 0; y < Height; y++)
+        //    {
+        //        for (int x = 0; x < Width; x++)
+        //        {
+        //            Color pixelColor = At(x, y);
+        //            Image.SetPixel(x, y, pixelColor);
+        //        }
+        //    }
+        //}
+
         public byte ColorIndexAt(int x, int y)
         {
             int absIndex = y * Width + x;
@@ -35,10 +51,10 @@ namespace Diablo2RProject
             return PixelData[absIndex];
         }
 
-        private string ColorModel()
-        {
-            return "RGBA";
-        }
+        //private string ColorModel()
+        //{
+        //    return "RGBA";
+        //}
 
         private Rectangle Bounds()
         {
