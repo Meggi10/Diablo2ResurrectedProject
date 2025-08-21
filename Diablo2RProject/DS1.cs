@@ -71,6 +71,7 @@ namespace Diablo2RProject
 
                         switch (layerStreamType)
                         {
+                            //Walls
                             case LayerStreamType.LayerWall1:
                             case LayerStreamType.LayerWall3:
                             case LayerStreamType.LayerWall4:
@@ -89,10 +90,11 @@ namespace Diablo2RProject
                                     tile.Unknown2 = (byte)((bits & 0x7C000000) >> 26);
 
                                     tile.Hidden = (byte)((bits & 0x80000000) >> 31) > 0;
-                                    tile.Tile = TileSet[tile.Sequence];
+                                    tile.Tile = TileSet[tile.Tile.Type]; //tile.Tile = TileSet[tile.Sequence];
                                     break;
                                 }
 
+                            //Orientations
                             case LayerStreamType.LayerOrientation1:
                             case LayerStreamType.LayerOrientation2:
                             case LayerStreamType.LayerOrientation3:
@@ -119,6 +121,7 @@ namespace Diablo2RProject
                                     break;
                                 }
 
+                            //Floors
                             case LayerStreamType.LayerFloor1:
                             case LayerStreamType.LayerFloor2:
                                 {
@@ -136,6 +139,7 @@ namespace Diablo2RProject
                                     tile.unknown2 = (byte)((bits & 0x7C000000) >> 26);
 
                                     tile.hidden = (byte)((bits & 0x80000000) >> 31) > 0;
+                                    //tile.Tile = TileSet[tile.Tile.Type];
                                     tile.Tile = TileSet[tile.sequence];
                                     break;
                                 }

@@ -141,9 +141,9 @@ namespace Diablo2RProject
                 newTile.Height = reader.ReadInt32();
                 newTile.Width = reader.ReadInt32();
                 reader.ReadInt32();
-                newTile.Type = reader.ReadInt32();
-                newTile.Style = reader.ReadInt32();
-                newTile.Sequence = reader.ReadInt32();
+                newTile.Type = reader.ReadInt32(); // first index
+                newTile.Style = reader.ReadInt32(); // second index
+                newTile.Sequence = reader.ReadInt32(); // third index
                 newTile.RarityFrameIndex = reader.ReadInt32();
                 reader.ReadInt32();
                 
@@ -155,7 +155,7 @@ namespace Diablo2RProject
                 reader.ReadBytes(7);
 
                 newTile.BlockHeaderPointer = reader.ReadInt32();
-                newTile.BlockHeaderSize = reader.ReadInt32();
+                newTile.BlockHeaderSize = reader.ReadInt32(); //BlockDatasLength
                 
                 var blockCount = reader.ReadInt32();
                 for (int j = 0; j < blockCount; j++)
@@ -226,7 +226,8 @@ namespace Diablo2RProject
                 for (int x = pixmap.Width / 2 - r; x < pixmap.Width / 2 + r; x++)
                 {
                     var brightness = pixels[pos++];
-                    pixmap[x, y] = DT1.DefaultPalette[brightness].ToArgb();
+                    //pixmap[x, y] = DT1.DefaultPalette[brightness].ToArgb();
+                    pixmap[x, y] = DefaultPalette[brightness].ToArgb();
                 }
             }
             block.Image = pixmap.Image;
@@ -274,7 +275,7 @@ namespace Diablo2RProject
             }
         }
 
-        private void DecodeBlockBodies(BinaryReader reader, Tile tile)
+        public void DecodeBlockBodies(BinaryReader reader, Tile tile)
         {
             
                 foreach (var block in tile.Block)
@@ -290,7 +291,7 @@ namespace Diablo2RProject
         public void DecodeTileGraphics(BinaryReader reader, Block block)
         {
             var tile = block.Tile;
-            var yOffset = DetermineYOffset();
+            //var yOffset = DetermineYOffset();
 
             var tileWidth = tile.Width;
             var tileHeight = tile.Height;
@@ -303,6 +304,17 @@ namespace Diablo2RProject
             block.PixelData = new byte[tileWidth * tileHeight];
             block.EncodingData = reader.ReadBytes(block.Length);
             block.Palette = DT1.Palette("act1\\pal.dat");
+
+            //if (block.Palette != null && block.Palette.Count > 0)
+            //{
+            //    Console.WriteLine($"First 10 palette colors:");
+            //    for (int i = 0; i < Math.Min(10, block.Palette.Count); i++)
+            //    {
+            //        var color = block.Palette[i];
+            //        Console.WriteLine($"  [{i}]: R={color.R}, G={color.G}, B={color.B}");
+            //    }
+            //}
+
             if (block.Format == DT1.BlockDataFormat.Isometric)
             {
                 DecodeIsometric(block, block.EncodingData);
@@ -310,8 +322,10 @@ namespace Diablo2RProject
             }
             else
             {
-                DecodeRLE(block, tileWidth, yOffset);
-                //block.DisplayImage();
+                block.Width = tileWidth; //linijki 325 oraz 326 powodują przerwanie programu przy większych plikach
+                block.Height = tileHeight; // długie ładowanie się "mapy"
+                DecodeRLE(block, tileWidth);
+                block.DisplayImage();
             }
 
             //block.Image = new System.Drawing.Bitmap(tileWidth, tileHeight);
@@ -339,12 +353,11 @@ namespace Diablo2RProject
                     }
                 }
             }
-
             return yOffset;
         }
 
         //Algorytm RLE prawdobodobnie jest dobrze napisany i prawidłowo odczytuje dane
-        private void DecodeRLE(Block block, int w, int yOffset)
+        public void DecodeRLE(Block block, int tileWidth)
         {
             int pixelWritten = 0;
             int outOfBoundsCount = 0;
@@ -356,8 +369,8 @@ namespace Diablo2RProject
             //Console.WriteLine($"EncodingData.Length: {block.EncodingData?.Length}");
 
             //Block block = new Block();
-            int blockX = block.X;
-            int blockY = block.Y; //Math.Abs(block.Y);
+            //int blockX = block.X;
+            //int blockY = block.Y; //Math.Abs(block.Y);
             int x = 0;
             int y = 0;
 
@@ -373,57 +386,69 @@ namespace Diablo2RProject
 
                 //if (pixelWritten + outOfBoundsCount < 5)
                 //{
-                    //Console.WriteLine($"b1: {b1}, b2: {b2}, x: {x}, y: {y}");
+                //Console.WriteLine($"b1: {b1}, b2: {b2}, x: {x}, y: {y}");
                 //}
 
-                if (b1 == 0 && b2 == 0)
+                if (b1 > 0 || b2 > 0)
                 {
                     //Console.WriteLine($"New line at y: {y}");
+
+                    x += b1;
+                    length -= b2;
+
+                    //x = 0;
+                    //y++;
+                    //continue;
+
+
+                    //x += (int)b1;
+                    //length -= (int)b2;
+
+                    while (b2 > 0)
+                    {
+                        //int offset = ((blockY + y + yOffset) * w) + (blockX + x);
+
+                        int offset = (y * tileWidth) + x;
+                        //if (pixelWritten + outOfBoundsCount < 10)
+                        //{
+                        //    Console.WriteLine($"Calculating offset: blockY({blockY}) + y({y}) + yOffset({yOffset}) = {blockY + y + yOffset}");
+                        //    Console.WriteLine($"  * w({w}) + blockX({blockX}) + x({x}) = offset {offset}");
+                        //    Console.WriteLine($"  PixelData.Length: {block.PixelData?.Length}");
+                        //}
+
+                        if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
+                        {
+                            //block.PixelData[offset] = block.EncodingData[index];
+                            byte colorIndex = block.EncodingData[index];
+                            block.PixelData[offset] = colorIndex; //dane z PixelData są odczytywane
+                            block.At(x, y);
+                            pixelWritten++;
+
+                            //if (pixelWritten <= 5)
+                            //{
+                            //    Console.WriteLine($"Wrote pixel {pixelWritten}: colorIndex {colorIndex} at offset {offset}");
+                            //}
+                        }
+                        else
+                        {
+                            outOfBoundsCount++;
+
+                            //DEBUGGING - dlaczego poza zakresem
+                            //if (outOfBoundsCount <= 5)
+                            //{
+                            //    Console.WriteLine($"Out of bounds #{outOfBoundsCount}: offset {offset}, PixelData.Length {block.PixelData?.Length}");
+                            //}
+                        }
+
+                        index++;
+                        x++;
+                        b2--;
+                    }
+                }
+                else
+                {
                     x = 0;
                     y++;
-                    continue;
-                }
-
-                x += (int)b1;
-                length -= (int)b2;
-
-                while (b2 > 0)
-                {
-                    int offset = ((blockY + y + yOffset) * w) + (blockX + x);
-                    //if (pixelWritten + outOfBoundsCount < 10)
-                    //{
-                    //    Console.WriteLine($"Calculating offset: blockY({blockY}) + y({y}) + yOffset({yOffset}) = {blockY + y + yOffset}");
-                    //    Console.WriteLine($"  * w({w}) + blockX({blockX}) + x({x}) = offset {offset}");
-                    //    Console.WriteLine($"  PixelData.Length: {block.PixelData?.Length}");
-                    //}
-
-                    if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
-                    {
-                        //block.PixelData[offset] = block.EncodingData[index];
-                        byte colorIndex = block.EncodingData[index];
-                        block.PixelData[offset] = colorIndex;
-                        block.At(x, y);
-                        pixelWritten++;
-
-                        //if (pixelWritten <= 5)
-                        //{
-                        //    Console.WriteLine($"Wrote pixel {pixelWritten}: colorIndex {colorIndex} at offset {offset}");
-                        //}
-                    }
-                    else
-                    {
-                        outOfBoundsCount++;
-
-                        // DEBUGGING - dlaczego poza zakresem
-                        //if (outOfBoundsCount <= 5)
-                        //{
-                        //    Console.WriteLine($"Out of bounds #{outOfBoundsCount}: offset {offset}, PixelData.Length {block.PixelData?.Length}");
-                        //}
-                    }
-
-                    index++;
-                    x++;
-                    b2--;
                 }
 
                 //for (int i = 0; i < b2; i++)
@@ -445,7 +470,6 @@ namespace Diablo2RProject
 
         }
 
-
         public static List<Color> DefaultPalette;
         private static bool paletteLoaded = false;
         private static byte[] paletteData;
@@ -457,7 +481,7 @@ namespace Diablo2RProject
             if (!paletteLoaded) //if (!paletteLoaded && paletteData != null)
             {
                 //Palette(fileName);
-                //DefaultPalette = new List<Color>();
+                DefaultPalette = new List<Color>();
                 DefaultPalette.Clear();
                 for (int i = 0; i < 256; i++)
                 {
@@ -549,7 +573,8 @@ namespace Diablo2RProject
             //    }
             //}
 
-            return GetDefaultPalette();
+            //return GetDefaultPalette();
+            return DefaultPalette;
 
         }
 
@@ -566,9 +591,9 @@ namespace Diablo2RProject
             return palette;
         }
 
-        static DT1()
-        {
-            DefaultPalette = GetDefaultPalette();
-        }
+        //static DT1()
+        //{
+        //    DefaultPalette = GetDefaultPalette();
+        //}
     }
 }

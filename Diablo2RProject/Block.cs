@@ -25,21 +25,21 @@ namespace Diablo2RProject
         public int Width { get; set;}
         public int Height { get; set;}
 
-        //public void DisplayImage()
-        //{
-        //    if (Width <= 0 || Height <= 0 || PixelData == null)
-        //        return;
-        //    Image = new Bitmap(Width, Height);
+        public void DisplayImage()
+        {
+            if (Width <= 0 || Height <= 0 || PixelData == null)
+                return;
+            Image = new Bitmap(Width, Height);
 
-        //    for (int y = 0; y < Height; y++)
-        //    {
-        //        for (int x = 0; x < Width; x++)
-        //        {
-        //            Color pixelColor = At(x, y);
-        //            Image.SetPixel(x, y, pixelColor);
-        //        }
-        //    }
-        //}
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    Color pixelColor = At(x, y);
+                    Image.SetPixel(x, y, pixelColor);
+                }
+            }
+        }
 
         public byte ColorIndexAt(int x, int y)
         {
@@ -64,7 +64,10 @@ namespace Diablo2RProject
         public Color At(int x, int y)
         {
             byte pallIndex = ColorIndexAt(x, y);
-            
+
+            if (pallIndex == 0)
+                return Color.Transparent;
+
             if (Palette == null || pallIndex >= Palette.Count)
                 return Color.Transparent;
 
