@@ -322,8 +322,10 @@ namespace Diablo2RProject
             }
             else
             {
-                block.Width = tileWidth; //linijki 325 oraz 326 powodują przerwanie programu przy większych plikach
-                block.Height = tileHeight; // długie ładowanie się "mapy"
+                //block.Width = tileWidth; //linijki 325 oraz 326 powodują przerwanie programu przy większych plikach
+                //block.Height = tileHeight; // długie ładowanie się "mapy"
+                block.Width = 160;
+                block.Height = 80;
                 DecodeRLE(block, tileWidth);
                 block.DisplayImage();
             }
@@ -361,6 +363,7 @@ namespace Diablo2RProject
         {
             int pixelWritten = 0;
             int outOfBoundsCount = 0;
+            int totalPixels = block.Width * block.Height;
 
             //Console.WriteLine($"=== DecodeRLE START ===");
             //Console.WriteLine($"blockX: {block.X}, blockY: {block.Y}");
@@ -369,10 +372,10 @@ namespace Diablo2RProject
             //Console.WriteLine($"EncodingData.Length: {block.EncodingData?.Length}");
 
             //Block block = new Block();
-            //int blockX = block.X;
-            //int blockY = block.Y; //Math.Abs(block.Y);
             int x = 0;
             int y = 0;
+            //int blockX = block.X + x;
+            //int blockY = block.Y + y; //Math.Abs(block.Y);
 
             int index = 0;
             int length = block.Length;
@@ -389,13 +392,15 @@ namespace Diablo2RProject
                 //Console.WriteLine($"b1: {b1}, b2: {b2}, x: {x}, y: {y}");
                 //}
 
-                if (b1 > 0 || b2 > 0)
+                //Console.WriteLine($"RLE step: b1={b1}, b2={b2}, x={x}, y={y}, index={index}, length={length}");
+
+                if (b1 != 0 || b2 != 0)
                 {
                     //Console.WriteLine($"New line at y: {y}");
 
                     x += b1;
                     length -= b2;
-
+                    //Console.WriteLine($"Drawing {b2} pixels starting at x={x + b1}");
                     //x = 0;
                     //y++;
                     //continue;
@@ -406,9 +411,13 @@ namespace Diablo2RProject
 
                     while (b2 > 0)
                     {
-                        //int offset = ((blockY + y + yOffset) * w) + (blockX + x);
-
+                        //int offset = ((blockY + y + yOffset) * w) + (blockX + x); //wcześniejszy offset
                         int offset = (y * tileWidth) + x;
+                        //int baseY = Math.Abs(block.Y);
+                        //int blockX = block.X + x;
+                        //int blockY = (block.Y + baseY) + y;
+                        //int offset = (blockY * tileWidth) + blockX;
+
                         //if (pixelWritten + outOfBoundsCount < 10)
                         //{
                         //    Console.WriteLine($"Calculating offset: blockY({blockY}) + y({y}) + yOffset({yOffset}) = {blockY + y + yOffset}");
@@ -419,9 +428,11 @@ namespace Diablo2RProject
                         if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
                         {
                             //block.PixelData[offset] = block.EncodingData[index];
+
                             byte colorIndex = block.EncodingData[index];
                             block.PixelData[offset] = colorIndex; //dane z PixelData są odczytywane
-                            block.At(x, y);
+                            //block.At(x, y);
+                            //block.At(blockX, blockY);
                             pixelWritten++;
 
                             //if (pixelWritten <= 5)
@@ -449,6 +460,7 @@ namespace Diablo2RProject
                 {
                     x = 0;
                     y++;
+                    //Console.WriteLine($"New line: x=0, y={y + 1}");
                 }
 
                 //for (int i = 0; i < b2; i++)
@@ -466,7 +478,10 @@ namespace Diablo2RProject
             Console.WriteLine($"=== DecodeRLE END ===");
             Console.WriteLine($"Pixels written: {pixelWritten}");
             Console.WriteLine($"Out of bounds: {outOfBoundsCount}");
-            Console.WriteLine($"First 10 PixelData values: {string.Join(",", block.PixelData?.Take(10) ?? new byte[0])}");
+            //Console.WriteLine($"First 10 PixelData values: {string.Join(",", block.PixelData?.Take(10) ?? new byte[0])}");
+            Console.WriteLine($"Block pos: X={block.X}, Y={block.Y}, tileWidth={tileWidth}, PixelData.Length={block.PixelData.Length}");
+            Console.WriteLine($"Fill percentage: {(pixelWritten * 100.0) / totalPixels:F1}%");
+            Console.WriteLine($"Non-zero pixels: {block.PixelData.Count(p => p != 0)}");
 
         }
 
@@ -476,14 +491,14 @@ namespace Diablo2RProject
         //private static string fileName;
 
         //Problem może leżeć w braku konwersji surowych danych na rzeczywiste RGB
-        public static void LoadPalette(string fileName)
+        public static void LoadPalette()
         {
             if (!paletteLoaded) //if (!paletteLoaded && paletteData != null)
             {
                 //Palette(fileName);
                 DefaultPalette = new List<Color>();
                 DefaultPalette.Clear();
-                for (int i = 0; i < 256; i++)
+                for (int i = 0; i <= 768; i++)
                 {
                     if (i * 3 + 2 < paletteData.Length)
                     {
@@ -504,15 +519,15 @@ namespace Diablo2RProject
             paletteLoaded = false;
         }
 
-        public static string ReadZString(BinaryReader reader)
-        {
-            List<byte> bytes = new List<byte>();
-            byte b;
-            while ((b = reader.ReadByte()) != 0)
-            {
-                bytes.Add(b);
-            }
-            return Encoding.ASCII.GetString(bytes.ToArray());
+        //public static string ReadZString(BinaryReader reader)
+        //{
+        //    List<byte> bytes = new List<byte>();
+        //    byte b;
+        //    while ((b = reader.ReadByte()) != 0)
+        //    {
+        //        bytes.Add(b);
+        //    }
+        //    return Encoding.ASCII.GetString(bytes.ToArray());
 
             //var result = "";
             //var ch = reader.ReadChar();
@@ -523,7 +538,7 @@ namespace Diablo2RProject
             //    ch = reader.ReadChar();
             //}
             //return result;
-        }
+        //}
 
 
         public static List<Color> Palette(string fileName)
@@ -544,10 +559,10 @@ namespace Diablo2RProject
             //File.ReadAllBytes(paletteData);
 
             //LoadPalette(fileName);
-            var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-            var reader = new BinaryReader(stream);
-            string palleteName = ReadZString(reader);
-            string directory = Path.GetDirectoryName(fileName);
+            //var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+            //var reader = new BinaryReader(stream);
+            //string palleteName = ReadZString(reader);
+            //string directory = Path.GetDirectoryName(fileName);
             //string fullPalettePath = Path.Combine(directory, palleteName + ".dat");
 
             
@@ -559,7 +574,7 @@ namespace Diablo2RProject
                 if (data.Length >= 768)
                 {
                     SetPaletteData(data);
-                    LoadPalette(fileName);
+                    LoadPalette();
                     //return DefaultPalette;
                 }
             //else return GetDefaultPalette();
