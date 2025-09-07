@@ -19,37 +19,37 @@ namespace Diablo2RProject
         public byte[] EncodingData {get; set;}
         public int Length {get; set;}
         public int FileOffset {get; set;}
-        public byte[] PixelData {get; set;}
+        //public byte[] Image {get; set;}
         public Bitmap Image {get; set;}
         public List<Color> Palette { get; set;}
         public int Width { get; set;}
         public int Height { get; set;}
 
-        public void DisplayImage()
-        {
-            if (Width <= 0 || Height <= 0 || PixelData == null)
-                return;
-            Image = new Bitmap(Width, Height);
+        //public void DisplayImage()
+        //{
+        //    if (Width <= 0 || Height <= 0 || Image == null)
+        //        return;
+        //    Image = new Bitmap(Width, Height);
 
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    Color pixelColor = At(x, y);
-                    Image.SetPixel(x, y, pixelColor);
-                }
-            }
-        }
+        //    for (int y = 0; y < Height; y++)
+        //    {
+        //        for (int x = 0; x < Width; x++)
+        //        {
+        //            Color pixelColor = At(x, y);
+        //            Image.SetPixel(x, y, pixelColor);
+        //        }
+        //    }
+        //}
 
-        public byte ColorIndexAt(int x, int y)
-        {
-            int absIndex = y * Width + x;
+        //public byte ColorIndexAt(int x, int y)
+        //{
+        //    int absIndex = y * Width + x;
 
-            if (absIndex < 0 || absIndex >= PixelData.Length)
-                return 0;
+        //    if (absIndex < 0 || absIndex >= Image.Length)
+        //        return 0;
 
-            return PixelData[absIndex];
-        }
+        //    return Image[absIndex];
+        //}
 
         //private string ColorModel()
         //{
@@ -61,17 +61,17 @@ namespace Diablo2RProject
             return new Rectangle(0, 0, Width, Height);
         }
 
-        public Color At(int x, int y)
-        {
-            byte pallIndex = ColorIndexAt(x, y);
+        //public Color At(int x, int y)
+        //{
+        //    byte pallIndex = ColorIndexAt(x, y);
 
-            if (pallIndex == 0)
-                return Color.Transparent;
+        //    if (pallIndex == 0)
+        //        return Color.Transparent;
 
-            if (Palette == null || pallIndex >= Palette.Count)
-                return Color.Transparent;
+        //    if (Palette == null || pallIndex >= Palette.Count)
+        //        return Color.Transparent;
 
-            return Palette[pallIndex];
-        }
+        //    return Palette[pallIndex];
+        //}
     }
 }

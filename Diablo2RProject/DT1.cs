@@ -176,62 +176,42 @@ namespace Diablo2RProject
             }
         }
 
-        private void DecodeIsometric(Block block, int w, int yOffset)
-        {
-            //Block block = new Block();
-            const int blockDataLength = 256;
-            int[] xJump = { 14, 12, 10, 8, 6,   4,  2,  0,  2,  4,  6, 8, 10, 12, 14 }; //16 - nbPix /2
-            int[] nbPix = { 4,  8,  12, 16, 20, 24, 28, 32, 28, 24, 20, 16, 12, 8, 4 };
-            int blockX = block.X;
-            int blockY = block.Y;
-            int length = blockDataLength;
-            int x = 0;
-            int y = 0;
-            int index = 0;
+        //private void DecodeIsometric(Block block, int w, int yOffset)
+        //{
+        //    //Block block = new Block();
+        //    const int blockDataLength = 256;
+        //    int[] xJump = { 14, 12, 10, 8, 6,   4,  2,  0,  2,  4,  6, 8, 10, 12, 14 }; //16 - nbPix /2
+        //    int[] nbPix = { 4,  8,  12, 16, 20, 24, 28, 32, 28, 24, 20, 16, 12, 8, 4 };
+        //    int blockX = block.X;
+        //    int blockY = block.Y;
+        //    int length = blockDataLength;
+        //    int x = 0;
+        //    int y = 0;
+        //    int index = 0;
 
-            while (length > 0)
-            {
-                x = xJump[y];
-                int n = nbPix[y];
-                length -= n;
+        //    while (length > 0)
+        //    {
+        //        x = xJump[y];
+        //        int n = nbPix[y];
+        //        length -= n;
 
-                while (n > 0)
-                {
-                    int offset = ((blockY + y + yOffset) * w) + (blockX + x);
-                    if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
-                    {
-                        block.PixelData[offset] = block.EncodingData[index];
-                    }
+        //        while (n > 0)
+        //        {
+        //            int offset = ((blockY + y + yOffset) * w) + (blockX + x);
+        //            if (offset >= 0 && offset < block.Image.Length && index < block.EncodingData.Length)
+        //            {
+        //                block.Image[offset] = block.EncodingData[index];
+        //            }
 
-                    x++;
-                    n--;
-                    index++;
-                }
-                y++;
-            }
-        }
+        //            x++;
+        //            n--;
+        //            index++;
+        //        }
+        //        y++;
+        //    }
+        //}
 
-        public void DecodeIsometric(Block block, byte[] pixels)
-        {
-            //var tile = block.Tile;
-            var blockWidth = 32;
-            var blockHeight = 15;
 
-            int pos = 0;
-            var pixmap = new TPixmap(blockWidth, blockHeight);
-            for (int y = 0; y < pixmap.Height; y++)
-            {
-                var n = y < pixmap.Height / 2 ? y : pixmap.Height - 1 - y;
-                var r = 2 + 2 * n;
-                for (int x = pixmap.Width / 2 - r; x < pixmap.Width / 2 + r; x++)
-                {
-                    var brightness = pixels[pos++];
-                    //pixmap[x, y] = DT1.DefaultPalette[brightness].ToArgb();
-                    pixmap[x, y] = DefaultPalette[brightness].ToArgb();
-                }
-            }
-            block.Image = pixmap.Image;
-        }
 
         private void DecodeBlockHeaders(BinaryReader reader, Tile tile)
         {
@@ -301,7 +281,7 @@ namespace Diablo2RProject
 
             //Block block = tile.Block[0];
             //foreach (var block in tile.Blocks)
-            block.PixelData = new byte[tileWidth * tileHeight];
+            //block.Image = tileWidth * tileHeight;
             block.EncodingData = reader.ReadBytes(block.Length);
             block.Palette = DT1.Palette("act1\\pal.dat");
 
@@ -317,17 +297,17 @@ namespace Diablo2RProject
 
             if (block.Format == DT1.BlockDataFormat.Isometric)
             {
-                DecodeIsometric(block, block.EncodingData);
+                block.Image = DecodeIsometric(block.EncodingData);
                 //DecodeIsometric(block, tileWidth, yOffset);
             }
             else
             {
                 //block.Width = tileWidth; //linijki 325 oraz 326 powodują przerwanie programu przy większych plikach
                 //block.Height = tileHeight; // długie ładowanie się "mapy"
-                block.Width = 160;
-                block.Height = 80;
-                DecodeRLE(block, tileWidth);
-                block.DisplayImage();
+                //block.Width = 160;
+                //block.Height = 80;
+                block.Image = DecodeRle(block.EncodingData);
+                //block.DisplayImage();
             }
 
             //block.Image = new System.Drawing.Bitmap(tileWidth, tileHeight);
@@ -342,148 +322,199 @@ namespace Diablo2RProject
             //}
         }
 
-        public int DetermineYOffset()
+        //public int DetermineYOffset()
+        //{
+        //    int yOffset = 0;
+        //    foreach (var tile in Tiles)
+        //    {
+        //        foreach (var block in tile.Block)
+        //        {
+        //            if (block.Y < yOffset)
+        //            {
+        //                yOffset = block.Y;
+        //            }
+        //        }
+        //    }
+        //    return yOffset;
+        //}
+
+        public Bitmap DecodeIsometric(byte[] pixels)
         {
-            int yOffset = 0;
-            foreach (var tile in Tiles)
+            //var tile = block.Tile;
+            var blockWidth = 32;
+            var blockHeight = 15;
+
+            int pos = 0;
+            var pixmap = new TPixmap(blockWidth, blockHeight);
+            for (int y = 0; y < pixmap.Height; y++)
             {
-                foreach (var block in tile.Block)
+                var n = y < pixmap.Height / 2 ? y : pixmap.Height - 1 - y;
+                var r = 2 + 2 * n;
+                for (int x = pixmap.Width / 2 - r; x < pixmap.Width / 2 + r; x++)
                 {
-                    if (block.Y < yOffset)
-                    {
-                        yOffset = block.Y;
-                    }
+                    var brightness = pixels[pos++];
+                    //pixmap[x, y] = DT1.DefaultPalette[brightness].ToArgb();
+                    pixmap[x, y] = DefaultPalette[brightness].ToArgb();
                 }
             }
-            return yOffset;
+            return pixmap.Image;
+        }
+
+        Bitmap DecodeRle(byte[] pixels)
+        {
+            var blockWidth = 32;
+            var blockHeight = 32;
+            int pos = 0;
+            var pixmap = new TPixmap(blockWidth, blockHeight);
+            for (int y = 0; y < pixmap.Height; y++)
+            {
+                if (pos >= pixels.Length) break;
+                var segBegin = 0;
+                var segEnd = 0;
+                do
+                {
+                    segBegin = segEnd;
+                    segBegin += pixels[pos]; pos++;
+                    segEnd = segBegin;
+                    segEnd += pixels[pos]; pos++;
+                    for (int x = segBegin; x < segEnd; x++)
+                    {
+                        var brightness = pixels[pos]; pos++;
+                        pixmap[x, y] = DefaultPalette[brightness].ToArgb();
+                    }
+                } while (segEnd > segBegin);
+            }
+            return pixmap.Image;
         }
 
         //Algorytm RLE prawdobodobnie jest dobrze napisany i prawidłowo odczytuje dane
-        public void DecodeRLE(Block block, int tileWidth)
-        {
-            int pixelWritten = 0;
-            int outOfBoundsCount = 0;
-            int totalPixels = block.Width * block.Height;
+        //public Bitmap DecodeRLE(byte[] pixels )
+        //{
+        //    var blockWidth = 32;
+        //    var blockHeight = 32;
+        //    //int pixelWritten = 0;
+        //    //int outOfBoundsCount = 0;
+        //    //int totalPixels = block.Width * block.Height;
 
-            //Console.WriteLine($"=== DecodeRLE START ===");
-            //Console.WriteLine($"blockX: {block.X}, blockY: {block.Y}");
-            //Console.WriteLine($"w: {w}, yOffset: {yOffset}");
-            //Console.WriteLine($"PixelData.Length: {block.PixelData?.Length}");
-            //Console.WriteLine($"EncodingData.Length: {block.EncodingData?.Length}");
+        //    //Console.WriteLine($"=== DecodeRLE START ===");
+        //    //Console.WriteLine($"blockX: {block.X}, blockY: {block.Y}");
+        //    //Console.WriteLine($"w: {w}, yOffset: {yOffset}");
+        //    //Console.WriteLine($"PixelData.Length: {block.PixelData?.Length}");
+        //    //Console.WriteLine($"EncodingData.Length: {block.EncodingData?.Length}");
 
-            //Block block = new Block();
-            int x = 0;
-            int y = 0;
-            //int blockX = block.X + x;
-            //int blockY = block.Y + y; //Math.Abs(block.Y);
+        //    //Block block = new Block();
+        //    int x = 0;
+        //    int y = 0;
+        //    //int blockX = block.X + x;
+        //    //int blockY = block.Y + y; //Math.Abs(block.Y);
 
-            int index = 0;
-            int length = block.Length;
+        //    int index = 0;
+        //    int length = block.Length;
 
-            while (length > 0)
-            {
-                byte b1 = block.EncodingData[index];
-                byte b2 = block.EncodingData[index + 1];
-                index += 2;
-                length -= 2;
+        //    while (length > 0)
+        //    {
+        //        byte b1 = block.EncodingData[index];
+        //        byte b2 = block.EncodingData[index + 1];
+        //        index += 2;
+        //        length -= 2;
 
-                //if (pixelWritten + outOfBoundsCount < 5)
-                //{
-                //Console.WriteLine($"b1: {b1}, b2: {b2}, x: {x}, y: {y}");
-                //}
+        //        //if (pixelWritten + outOfBoundsCount < 5)
+        //        //{
+        //        //Console.WriteLine($"b1: {b1}, b2: {b2}, x: {x}, y: {y}");
+        //        //}
 
-                //Console.WriteLine($"RLE step: b1={b1}, b2={b2}, x={x}, y={y}, index={index}, length={length}");
+        //        //Console.WriteLine($"RLE step: b1={b1}, b2={b2}, x={x}, y={y}, index={index}, length={length}");
 
-                if (b1 != 0 || b2 != 0)
-                {
-                    //Console.WriteLine($"New line at y: {y}");
+        //        if (b1 != 0 || b2 != 0)
+        //        {
+        //            //Console.WriteLine($"New line at y: {y}");
 
-                    x += b1;
-                    length -= b2;
-                    //Console.WriteLine($"Drawing {b2} pixels starting at x={x + b1}");
-                    //x = 0;
-                    //y++;
-                    //continue;
+        //            x += b1;
+        //            length -= b2;
+        //            //Console.WriteLine($"Drawing {b2} pixels starting at x={x + b1}");
+        //            //x = 0;
+        //            //y++;
+        //            //continue;
 
 
-                    //x += (int)b1;
-                    //length -= (int)b2;
+        //            //x += (int)b1;
+        //            //length -= (int)b2;
 
-                    while (b2 > 0)
-                    {
-                        //int offset = ((blockY + y + yOffset) * w) + (blockX + x); //wcześniejszy offset
-                        int offset = (y * tileWidth) + x;
-                        //int baseY = Math.Abs(block.Y);
-                        //int blockX = block.X + x;
-                        //int blockY = (block.Y + baseY) + y;
-                        //int offset = (blockY * tileWidth) + blockX;
+        //            while (b2 > 0)
+        //            {
+        //                //int offset = ((blockY + y + yOffset) * w) + (blockX + x); //wcześniejszy offset
+        //                int offset = (y * tileWidth) + x;
+        //                //int baseY = Math.Abs(block.Y);
+        //                //int blockX = block.X + x;
+        //                //int blockY = (block.Y + baseY) + y;
+        //                //int offset = (blockY * tileWidth) + blockX;
 
-                        //if (pixelWritten + outOfBoundsCount < 10)
-                        //{
-                        //    Console.WriteLine($"Calculating offset: blockY({blockY}) + y({y}) + yOffset({yOffset}) = {blockY + y + yOffset}");
-                        //    Console.WriteLine($"  * w({w}) + blockX({blockX}) + x({x}) = offset {offset}");
-                        //    Console.WriteLine($"  PixelData.Length: {block.PixelData?.Length}");
-                        //}
+        //                //if (pixelWritten + outOfBoundsCount < 10)
+        //                //{
+        //                //    Console.WriteLine($"Calculating offset: blockY({blockY}) + y({y}) + yOffset({yOffset}) = {blockY + y + yOffset}");
+        //                //    Console.WriteLine($"  * w({w}) + blockX({blockX}) + x({x}) = offset {offset}");
+        //                //    Console.WriteLine($"  PixelData.Length: {block.PixelData?.Length}");
+        //                //}
 
-                        if (offset >= 0 && offset < block.PixelData.Length && index < block.EncodingData.Length)
-                        {
-                            //block.PixelData[offset] = block.EncodingData[index];
+        //                if (offset >= 0 && offset < block.Image.Length && index < block.EncodingData.Length)
+        //                {
+        //                    //block.PixelData[offset] = block.EncodingData[index];
 
-                            byte colorIndex = block.EncodingData[index];
-                            block.PixelData[offset] = colorIndex; //dane z PixelData są odczytywane
-                            //block.At(x, y);
-                            //block.At(blockX, blockY);
-                            pixelWritten++;
+        //                    byte colorIndex = block.EncodingData[index];
+        //                    block.Image[offset] = colorIndex; //dane z PixelData są odczytywane
+        //                    //block.At(x, y);
+        //                    //block.At(blockX, blockY);
+        //                    pixelWritten++;
 
-                            //if (pixelWritten <= 5)
-                            //{
-                            //    Console.WriteLine($"Wrote pixel {pixelWritten}: colorIndex {colorIndex} at offset {offset}");
-                            //}
-                        }
-                        else
-                        {
-                            outOfBoundsCount++;
+        //                    //if (pixelWritten <= 5)
+        //                    //{
+        //                    //    Console.WriteLine($"Wrote pixel {pixelWritten}: colorIndex {colorIndex} at offset {offset}");
+        //                    //}
+        //                }
+        //                else
+        //                {
+        //                    outOfBoundsCount++;
 
-                            //DEBUGGING - dlaczego poza zakresem
-                            //if (outOfBoundsCount <= 5)
-                            //{
-                            //    Console.WriteLine($"Out of bounds #{outOfBoundsCount}: offset {offset}, PixelData.Length {block.PixelData?.Length}");
-                            //}
-                        }
+        //                    //DEBUGGING - dlaczego poza zakresem
+        //                    //if (outOfBoundsCount <= 5)
+        //                    //{
+        //                    //    Console.WriteLine($"Out of bounds #{outOfBoundsCount}: offset {offset}, PixelData.Length {block.PixelData?.Length}");
+        //                    //}
+        //                }
 
-                        index++;
-                        x++;
-                        b2--;
-                    }
-                }
-                else
-                {
-                    x = 0;
-                    y++;
-                    //Console.WriteLine($"New line: x=0, y={y + 1}");
-                }
+        //                index++;
+        //                x++;
+        //                b2--;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            x = 0;
+        //            y++;
+        //            //Console.WriteLine($"New line: x=0, y={y + 1}");
+        //        }
 
-                //for (int i = 0; i < b2; i++)
-                //{
-                //    int offset = ((blockY + y + yOffset) * w) + (blockX + x);
-                //    if (offset >=0 && offset < block.PixelData.Length)
-                //    {
-                //        byte pixelValue = block.EncodingData[index];
-                //        block.PixelData[offset] = pixelValue;
-                //    }
-                //    index++;
-                //    x++;
-                //}
-            }
-            Console.WriteLine($"=== DecodeRLE END ===");
-            Console.WriteLine($"Pixels written: {pixelWritten}");
-            Console.WriteLine($"Out of bounds: {outOfBoundsCount}");
-            //Console.WriteLine($"First 10 PixelData values: {string.Join(",", block.PixelData?.Take(10) ?? new byte[0])}");
-            Console.WriteLine($"Block pos: X={block.X}, Y={block.Y}, tileWidth={tileWidth}, PixelData.Length={block.PixelData.Length}");
-            Console.WriteLine($"Fill percentage: {(pixelWritten * 100.0) / totalPixels:F1}%");
-            Console.WriteLine($"Non-zero pixels: {block.PixelData.Count(p => p != 0)}");
+        //        //for (int i = 0; i < b2; i++)
+        //        //{
+        //        //    int offset = ((blockY + y + yOffset) * w) + (blockX + x);
+        //        //    if (offset >=0 && offset < block.PixelData.Length)
+        //        //    {
+        //        //        byte pixelValue = block.EncodingData[index];
+        //        //        block.PixelData[offset] = pixelValue;
+        //        //    }
+        //        //    index++;
+        //        //    x++;
+        //        //}
+        //    }
+        //    Console.WriteLine($"=== DecodeRLE END ===");
+        //    Console.WriteLine($"Pixels written: {pixelWritten}");
+        //    Console.WriteLine($"Out of bounds: {outOfBoundsCount}");
+        //    //Console.WriteLine($"First 10 PixelData values: {string.Join(",", block.PixelData?.Take(10) ?? new byte[0])}");
+        //    Console.WriteLine($"Block pos: X={block.X}, Y={block.Y}, tileWidth={tileWidth}, PixelData.Length={block.Image.Length}");
+        //    Console.WriteLine($"Fill percentage: {(pixelWritten * 100.0) / totalPixels:F1}%");
+        //    Console.WriteLine($"Non-zero pixels: {block.Image.Count(p => p != 0)}");
 
-        }
+        //}
 
         public static List<Color> DefaultPalette;
         private static bool paletteLoaded = false;

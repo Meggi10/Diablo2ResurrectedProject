@@ -90,7 +90,14 @@ namespace Diablo2RProject
                                     tile.Unknown2 = (byte)((bits & 0x7C000000) >> 26);
 
                                     tile.Hidden = (byte)((bits & 0x80000000) >> 31) > 0;
-                                    tile.Tile = TileSet[tile.Tile.Type]; //tile.Tile = TileSet[tile.Sequence];
+
+                                    //Console.WriteLine($"Wall ({x},{y}) Style={tile.Style} Seq={tile.Sequence} Prop1={tile.Property1}");
+
+
+                                    //tile.Tile = TileSet[tile.Tile.Type]; 
+                                    tile.Tile = TileSet[tile.Style];
+                                    //tile.Tile = TileSet[tile.Sequence];
+                                    tile.Tile = TileSet[tile.Property1];
                                     break;
                                 }
 
@@ -114,6 +121,9 @@ namespace Diablo2RProject
                                         }
                                     }
                                     Tiles[y][x].Walls[wallIndex].Type = (TileType)c;
+                                    //Tiles[y][x].Walls[wallIndex].Style = (byte)c;
+                                    //Tiles[y][x].Walls[wallIndex].Sequence = (byte)c;
+                                    Tiles[y][x].Walls[wallIndex].Property1 = (byte)c;
 
 
                                     Tiles[y][x].Walls[wallIndex].Zero = (byte)((bits & 0xFFFFFF00) >> 8);
@@ -139,8 +149,12 @@ namespace Diablo2RProject
                                     tile.unknown2 = (byte)((bits & 0x7C000000) >> 26);
 
                                     tile.hidden = (byte)((bits & 0x80000000) >> 31) > 0;
+                                    //Console.WriteLine($"Floor ({x},{y}) Style={tile.style} Seq={tile.sequence} Prop1={tile.property1}");
+
                                     //tile.Tile = TileSet[tile.Tile.Type];
-                                    tile.Tile = TileSet[tile.sequence];
+                                    tile.Tile = TileSet[tile.style];
+                                    //tile.Tile = TileSet[tile.sequence];
+                                    tile.Tile = TileSet[tile.property1];
                                     break;
                                 }
 
@@ -153,11 +167,13 @@ namespace Diablo2RProject
                                     Tiles[y][x].Shadows[0].unknown1 = (byte)((bits & 0x000FC000) >> 14);
 
                                     Tiles[y][x].Shadows[0].style = (byte)((bits & 0x03F00000) >> 20);
-
+                                    
                                     Tiles[y][x].Shadows[0].unknown2 = (byte)((bits & 0x7C000000) >> 26);
 
                                     Tiles[y][x].Shadows[0].hidden = (byte)((bits & 0x80000000) >> 31) > 0;
                                     break;
+
+                                    
                                 }
 
                             case LayerStreamType.LayerSubstitute:
@@ -192,14 +208,15 @@ namespace Diablo2RProject
 
             try
             {
-                var ds1 = new DS1
-                {
-                    ActNo = 1,
-                    NumberOfFloors = 0,
-                    NumberOfWalls = 0,
-                    NumberOfShadowLayers = 1,
-                    NumberOfSubstitutionLayers = 0
-                };
+                var ds1 = new DS1();
+                //{
+                //    ActNo = 0,
+                //    NumberOfFloors = 1,
+                //    NumberOfWalls = 0,
+                //    NumberOfShadowLayers = 1,
+                //    NumberOfSubstitutionLayers = 0
+                //}
+                //;
 
                 int versionValue = reader.ReadInt32();
                 ds1.Version = (Version)versionValue;
@@ -262,6 +279,7 @@ namespace Diablo2RProject
 
                     if (ds1.Version.EncodeWallLayers())
                     {
+                        //ds1.NumberOfWalls = reader.ReadInt32();
                         ds1.NumberOfFloors = reader.ReadInt32();
                         ds1.NumberOfFloors = 1;
                     }
