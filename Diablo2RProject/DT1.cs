@@ -249,7 +249,7 @@ namespace Diablo2RProject
                 {
                     block.Format = BlockDataFormat.Isometric;
                 }
-                block.Length =reader.ReadInt32();
+                block.Length = reader.ReadInt32();
                 reader.ReadInt16();
                 block.FileOffset = reader.ReadInt32();
             }

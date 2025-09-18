@@ -48,6 +48,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Block.cs" />
+    <Compile Include="Diablo\DiabloAnimation.cs" />
+    <Compile Include="Diablo\DiabloBlockTile.cs" />
+    <Compile Include="Diablo\DiabloTile.cs" />
+    <Compile Include="TBlockTile.cs" />
+    <Compile Include="TBoard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TBoard.Designer.cs">
+      <DependentUpon>TBoard.cs</DependentUpon>
+    </Compile>
     <Compile Include="DS1.cs" />
     <Compile Include="DT1.cs" />
     <Compile Include="FloorShadowRecord.cs" />
@@ -61,6 +71,21 @@
     <Compile Include="LayerStreamType.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="Object.cs" />
+    <Compile Include="TAnimation.cs" />
+    <Compile Include="TCell.cs" />
+    <Compile Include="Diablo\TDiabloMap.cs" />
+    <Compile Include="Dispel\TDispelMap.cs" />
+    <Compile Include="TEditItem.cs" />
+    <Compile Include="TElement.cs" />
+    <Compile Include="TFrame.cs" />
+    <Compile Include="TGame.cs" />
+    <Compile Include="THealItem.cs" />
+    <Compile Include="TIniReader.cs" />
+    <Compile Include="TItem.cs" />
+    <Compile Include="TMap.cs" />
+    <Compile Include="TMiscItem.cs" />
+    <Compile Include="TMonster.cs" />
+    <Compile Include="TNpc.cs" />
     <Compile Include="TPath.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,9 +95,18 @@
     <Compile Include="Tile.cs" />
     <Compile Include="TileRecord.cs" />
     <Compile Include="TileType.cs" />
+    <Compile Include="TPiece.cs" />
     <Compile Include="TPixmap.cs" />
+    <Compile Include="TPlayer.cs" />
+    <Compile Include="TScript.cs" />
+    <Compile Include="TSprite.cs" />
+    <Compile Include="TTile.cs" />
+    <Compile Include="TWeapon.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="WallRecord.cs" />
+    <EmbeddedResource Include="TBoard.resx">
+      <DependentUpon>TBoard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

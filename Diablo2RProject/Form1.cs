@@ -23,12 +23,27 @@ namespace Diablo2RProject
         private DT1 loadedDT1;
         private Tile tile;
         private byte[] fileData;
+        TGame Game = new TGame();
         //private Dictionary<(int Type, int Style, int Sequence), Tile> tileLookup;
         public DiabloForm()
         {
             InitializeComponent();
+            tBoard1.Game = Game;
+            tBoard1.MouseWheel += TBoard1_MouseWheel;
+            Game.MapView = new Bitmap (MapView.Width, MapView.Height);
 
         }
+
+        private void TBoard1_MouseWheel(object sender, MouseEventArgs e)
+        {
+            tBoard1.Zoom *= e.Delta < 0 ? 0.9f : 1.1f;
+            var timerInterval = (int)(100 / tBoard1.Zoom);
+            var minTime = 1000 / TGame.FPS;
+            if (timerInterval < minTime) timerInterval = minTime;
+            PlayTimer.Interval = timerInterval;
+            tBoard1.Invalidate();
+        }
+
         public void Button1_Click(object sender, EventArgs e)
         {
             ImportStructure();
@@ -62,8 +77,10 @@ namespace Diablo2RProject
                 //string ex = Path.GetDirectoryName(openFileDialog.FileName).ToLower();
                 //if (ex == ".ds1")
                 //{
-                    DS1 ds1 = DS1.LoadFromFile(openFileDialog.FileName);
-                    LoadStructure(ds1);
+                    //DS1 ds1 = DS1.LoadFromFile(openFileDialog.FileName);
+                    //LoadStructure(ds1);
+                    Game.ImportMap(openFileDialog.FileName);
+                    Game.Board.Invalidate();
                     //ImportMap();
                 //}
                //else if (ex == ".dt1")
@@ -104,102 +121,103 @@ namespace Diablo2RProject
         //    }
         //}
 
-        private void LoadStructure(DS1 ds1)
-        {
-            if (ds1 == null || ds1.Width == 0 || ds1.Height == 0)
-                return;
+        //private void LoadStructure(DS1 ds1)
+        //{
+        //    if (ds1 == null || ds1.Width == 0 || ds1.Height == 0)
+        //        return;
 
-            loadedDS1 = ds1;
+        //    loadedDS1 = ds1;
 
-            int TileSizeX = MapView.Width / (ds1.Width + ds1.Height);
-            int TileSizeY = MapView.Width / 2;
+        //    int TileSizeX = MapView.Width / (ds1.Width + ds1.Height);
+        //    int TileSizeY = MapView.Width / 2;
 
-            int bmpWidth = (ds1.Width + ds1.Height) * (TileSizeX / 2);
-            int bmpHeight = (ds1.Width + ds1.Height) * (TileSizeY / 2);
+        //    int bmpWidth = (ds1.Width + ds1.Height) * (TileSizeX / 2);
+        //    int bmpHeight = (ds1.Width + ds1.Height) * (TileSizeY / 2);
 
-            int offsetX = (bmpWidth - TileSizeX) / 2;
-            int offsetY = (bmpHeight + TileSizeY) / TileSizeY;
+        //    int offsetX = (bmpWidth - TileSizeX) / 2;
+        //    int offsetY = (bmpHeight + TileSizeY) / TileSizeY;
 
-            Bitmap bitmap = new Bitmap(bmpWidth, bmpHeight);
-            using (Graphics graphics = Graphics.FromImage(bitmap))
-            {
-                //Można to potem zmienić na czarny kolor. Na razie biały służy do testów (na czarnym słabo widać)
-                //co aktualnie się dzieje. Na przykładzie pliku facade1.ds1 można wnioskować, że to co widać na
-                //ekranie to skala odcieni szarości (piksele), które są widoczne dopiero po bardzo dużym zbliżeniu.
-                //Piksele renderują się jako poziome paski (od jasnych po ciemne - przechodzące), ale nie zapełniają
-                //całych przestrzeni (są oddalone od siebie w pionie), co powoduje jedynie widoczność poziomych linii.
-                graphics.Clear(Color.White);
-                //graphics.Clear(Color.Black);
+        //    Bitmap bitmap = new Bitmap(bmpWidth, bmpHeight);
+        //    using (Graphics graphics = Graphics.FromImage(bitmap))
+        //    {
+        //        //Można to potem zmienić na czarny kolor. Na razie biały służy do testów (na czarnym słabo widać)
+        //        //co aktualnie się dzieje. Na przykładzie pliku facade1.ds1 można wnioskować, że to co widać na
+        //        //ekranie to skala odcieni szarości (piksele), które są widoczne dopiero po bardzo dużym zbliżeniu.
+        //        //Piksele renderują się jako poziome paski (od jasnych po ciemne - przechodzące), ale nie zapełniają
+        //        //całych przestrzeni (są oddalone od siebie w pionie), co powoduje jedynie widoczność poziomych linii.
+        //        graphics.Clear(Color.White);
+        //        //graphics.Clear(Color.Black);
 
-                for (int y = 0; y < ds1.Height; y++)
-                {
-                    for (int x = 0; x < ds1.Width; x++)
-                    {
-                        //TileType tileType = default;
+        //        for (int y = 0; y < ds1.Height; y++)
+        //        {
+        //            for (int x = 0; x < ds1.Width; x++)
+        //            {
+        //                //TileType tileType = default;
 
-                        if (ds1.Tiles[y][x].FloorsShadow != null && ds1.Tiles[y][x].FloorsShadow.Count > 0)
-                        {
-                            var wall = ds1.Tiles[y][x].FloorsShadow[0];
-                            //tileType = (TileType)wall.Type;
+        //                if (ds1.Tiles[y][x].FloorsShadow != null && ds1.Tiles[y][x].FloorsShadow.Count > 0)
+        //                {
+        //                    var wall = ds1.Tiles[y][x].FloorsShadow[0];
+        //                    //var tileType = (TileType)wall.Tile.Type;
 
-                            int screenX = (x - y) * (TileSizeX / 2) + offsetX;
-                            int screenY = (x + y) * (TileSizeY / 2) + offsetY;
+        //                    int screenX = (x - y) * (TileSizeX / 2) + offsetX;
+        //                    int screenY = (x + y) * (TileSizeY / 2) + offsetY;
 
-                            //if (tileLookup != null && tileLookup.TryGetValue(((int Type, int Style, int Sequence))(tileType, wall.Style, wall.Sequence), out var tile))
-                            var tile = ds1.TileSet[wall.Tile.Type]; //var tile = ds1.TileSet[wall.sequence];
-                            if (tile != null)
-                            {
-                                var image = tile.Block.FirstOrDefault()?.Image; 
-                                if (image != null)
-                                {
-                                    //Console.WriteLine($"Drawign tile image: {image.Width}x{image.Height}");
-                                    //Console.WriteLine($"Pixel sample {((Bitmap)image).GetPixel(10, 10)}");
-                                    graphics.DrawImage(image, screenX, screenY);
-                                    continue;
-                                }
-                            }
+        //                    //if (tileLookup != null && tileLookup.TryGetValue(((int Type, int Style, int Sequence))(tileType, wall.Style, wall.Sequence), out var tile))
+        //                    var tile = ds1.TileSet[wall.Tile.Type]; 
+        //                    //var tile = ds1.TileSet[wall.property1];
+        //                    if (tile != null)
+        //                    {
+        //                        var image = tile.Block.FirstOrDefault()?.Image; 
+        //                        if (image != null)
+        //                        {
+        //                            //Console.WriteLine($"Drawign tile image: {image.Width}x{image.Height}");
+        //                            //Console.WriteLine($"Pixel sample {((Bitmap)image).GetPixel(10, 10)}");
+        //                            graphics.DrawImage(image, screenX, screenY);
+        //                            continue;
+        //                        }
+        //                    }
 
-                            //Color color;
-                            //if (tileType.IsUpperWall())
-                            //    color = Color.Teal;
-                            //else if (tileType.IsLowerWall())
-                            //    color = Color.Gray;
-                            //else if (tileType.IsSpecial())
-                            //    color = Color.Blue;
-                            //else
-                            //    continue;
+        //                    //Color color;
+        //                    //if (tileType.IsUpperWall())
+        //                    //    color = Color.Teal;
+        //                    //else if (tileType.IsLowerWall())
+        //                    //    color = Color.Gray;
+        //                    //else if (tileType.IsSpecial())
+        //                    //    color = Color.Blue;
+        //                    //else
+        //                    //    continue;
 
-                            Point[] isometric = new Point[]
-                            {
-                                new Point(screenX, screenY + TileSizeY / 2),
-                                new Point(screenX + TileSizeX / 2, screenY),
-                                new Point(screenX + TileSizeX, screenY + TileSizeY / 2),
-                                new Point(screenX + TileSizeX / 2, screenY + TileSizeY)
-                            };
+        //                    Point[] isometric = new Point[]
+        //                    {
+        //                        new Point(screenX, screenY + TileSizeY / 2),
+        //                        new Point(screenX + TileSizeX / 2, screenY),
+        //                        new Point(screenX + TileSizeX, screenY + TileSizeY / 2),
+        //                        new Point(screenX + TileSizeX / 2, screenY + TileSizeY)
+        //                    };
 
-                            //using (Brush b = new SolidBrush(color))
-                            //{
-                            //    graphics.FillPolygon(b, isometric);
-                            //}
+        //                    //using (Brush b = new SolidBrush(color))
+        //                    //{
+        //                    //    graphics.FillPolygon(b, isometric);
+        //                    //}
 
-                            graphics.DrawPolygon(Pens.Red, isometric);
-                        }
-                    }
-                }
-            }
+        //                    graphics.DrawPolygon(Pens.Red, isometric);
+        //                }
+        //            }
+        //        }
+        //    }
 
-            if (bitmap.Width > MapView.Width || bitmap.Height > MapView.Height)
-            {
-                Bitmap scaled = new Bitmap(bitmap, MapView.Width, MapView.Height);
-                MapView.Image = scaled;
-            }
-            else
-            {
-                MapView.Image = bitmap;
-            }
+        //    if (bitmap.Width > MapView.Width || bitmap.Height > MapView.Height)
+        //    {
+        //        Bitmap scaled = new Bitmap(bitmap, MapView.Width, MapView.Height);
+        //        MapView.Image = scaled;
+        //    }
+        //    else
+        //    {
+        //        MapView.Image = bitmap;
+        //    }
 
-            MapView.Invalidate();
-        }
+        //    MapView.Invalidate();
+        //}
 
         //private void LoadStructure(DS1 ds1)
         //{
@@ -379,6 +397,17 @@ namespace Diablo2RProject
         private void MapView_Click(object sender, EventArgs e)
         {
             
+        }
+
+        private void PlayTimer_Tick(object sender, EventArgs e)
+        {
+            foreach (var sprite in Game.Sprites)
+            {
+                var actFrame = sprite.ActFrame;
+                sprite.NextFrame();
+                if (actFrame != sprite.ActFrame)
+                    tBoard1.Invalidate();
+            }
         }
     }
 }

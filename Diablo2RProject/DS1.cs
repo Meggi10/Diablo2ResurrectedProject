@@ -68,11 +68,11 @@ namespace Diablo2RProject
                         var bits = reader.ReadInt32();
 
 
-
                         switch (layerStreamType)
                         {
                             //Walls
                             case LayerStreamType.LayerWall1:
+                            case LayerStreamType.LayerWall2:
                             case LayerStreamType.LayerWall3:
                             case LayerStreamType.LayerWall4:
                                 {
@@ -95,9 +95,9 @@ namespace Diablo2RProject
 
 
                                     //tile.Tile = TileSet[tile.Tile.Type]; 
-                                    tile.Tile = TileSet[tile.Style];
+                                    //tile.Tile = TileSet[tile.Style];
                                     //tile.Tile = TileSet[tile.Sequence];
-                                    tile.Tile = TileSet[tile.Property1];
+                                    //tile.Tile = TileSet[tile.Property1];
                                     break;
                                 }
 
@@ -275,14 +275,14 @@ namespace Diablo2RProject
 
                 if (ds1.Version.EncodeFloorLayers())
                 {
-                    ds1.NumberOfFloors = reader.ReadInt32();
+                    ds1.NumberOfWalls = reader.ReadInt32();
 
                     if (ds1.Version.EncodeWallLayers())
                     {
-                        //ds1.NumberOfWalls = reader.ReadInt32();
                         ds1.NumberOfFloors = reader.ReadInt32();
-                        ds1.NumberOfFloors = 1;
                     }
+                    else
+                        ds1.NumberOfFloors = 1;
                 }
 
                 ds1.Tiles = new List<List<TileRecord>>();
