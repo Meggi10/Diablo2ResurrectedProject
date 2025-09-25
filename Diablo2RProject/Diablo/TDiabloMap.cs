@@ -414,8 +414,15 @@ namespace Diablo2RProject
                 var obj = new TElement();
                 var type = reader.ReadInt32() - 1;
                 obj.Id = reader.ReadInt32();
-                obj.X = reader.ReadInt32();
-                obj.Y = reader.ReadInt32();
+                var x = reader.ReadInt32();
+                var y = reader.ReadInt32();
+                var pos = TransformGrid(x - 4,y - 1);
+                var cell = new TCell();
+                cell.X = (int)pos.X;
+                cell.Y = (int)pos.Y;
+                pos = cell.Position;
+                obj.X = (int)pos.X;
+                obj.Y = (int)pos.Y;
                 obj.EventId = reader.ReadInt32();
                 obj.Bounds = new Rectangle(obj.X, obj.Y, TCell.Width, TCell.Height);
                 var idx = (ActNo - 1) * 210 + type * 60 + obj.Id + 1;
@@ -427,14 +434,16 @@ namespace Diablo2RProject
                     anim.ClassType = objInfo[idx][classIdx];
                     anim.BasePath = type == 0 ? "Monsters" : "Objects";
                     int.TryParse(objInfo[idx][palIdx], out anim.PaletteIdx);
-                    for(var a = 0; a < 16; a++)
+                    for (var a = 0; a < 16; a++)
                         anim.Armor.Add(objInfo[idx][armorIdx + a]);
                     anim.Index = idx;
                     anim.Read();
                     obj.Animation = anim;
                     anims[idx] = anim;
                 }
-                //Game.Sprites.Add(obj);
+                else
+                    obj.Animation = anims[idx];
+                Game.Sprites.Add(obj);
             }
         }
     }

@@ -33,8 +33,8 @@
             this.Button1 = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.PlayTimer = new System.Windows.Forms.Timer(this.components);
             this.MapView = new System.Windows.Forms.PictureBox();
+            this.PlayTimer = new System.Windows.Forms.Timer(this.components);
             this.tBoard1 = new Diablo2RProject.TBoard();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MapView)).BeginInit();
@@ -42,13 +42,14 @@
             // 
             // Button1
             // 
-            this.Button1.Location = new System.Drawing.Point(102, 458);
+            this.Button1.BackColor = System.Drawing.Color.Transparent;
+            this.Button1.Location = new System.Drawing.Point(99, 396);
             this.Button1.Margin = new System.Windows.Forms.Padding(0);
             this.Button1.Name = "Button1";
             this.Button1.Size = new System.Drawing.Size(75, 23);
             this.Button1.TabIndex = 0;
             this.Button1.Text = "LoadMap";
-            this.Button1.UseVisualStyleBackColor = true;
+            this.Button1.UseVisualStyleBackColor = false;
             this.Button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // openFileDialog1
@@ -58,6 +59,7 @@
             // 
             // panel1
             // 
+            this.panel1.BackColor = System.Drawing.Color.DarkMagenta;
             this.panel1.Controls.Add(this.MapView);
             this.panel1.Controls.Add(this.Button1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
@@ -66,12 +68,6 @@
             this.panel1.Size = new System.Drawing.Size(263, 673);
             this.panel1.TabIndex = 2;
             // 
-            // PlayTimer
-            // 
-            this.PlayTimer.Enabled = true;
-            this.PlayTimer.Interval = 40;
-            this.PlayTimer.Tick += new System.EventHandler(this.PlayTimer_Tick);
-            // 
             // MapView
             // 
             this.MapView.Location = new System.Drawing.Point(59, 31);
@@ -79,6 +75,12 @@
             this.MapView.Size = new System.Drawing.Size(153, 135);
             this.MapView.TabIndex = 1;
             this.MapView.TabStop = false;
+            // 
+            // PlayTimer
+            // 
+            this.PlayTimer.Enabled = true;
+            this.PlayTimer.Interval = 40;
+            this.PlayTimer.Tick += new System.EventHandler(this.PlayTimer_Tick);
             // 
             // tBoard1
             // 

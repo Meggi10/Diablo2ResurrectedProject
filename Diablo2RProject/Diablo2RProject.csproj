@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Block.cs" />
+    <Compile Include="Diablo\BitStream.cs" />
     <Compile Include="Diablo\DiabloAnimation.cs" />
     <Compile Include="Diablo\DiabloBlockTile.cs" />
     <Compile Include="Diablo\DiabloTile.cs" />
