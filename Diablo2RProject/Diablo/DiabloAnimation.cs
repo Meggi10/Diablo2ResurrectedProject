@@ -47,16 +47,16 @@ namespace Diablo2RProject.Diablo
         byte LayersCount;
         byte FramesCount;
         byte DirectionCount;
-        int xoffset;
-        int yoffset;
+        //int xoffset;
+        //int yoffset;
         LAY_INF_S[] lay_inf;
         byte[] priority;
-        int cur_frame;
-        int cur_dir;
-        int spd_mul;
-        int spd_div;
-        int spd_mod; // = is (mul % div), for extra precision
-        int orderflag; // from data\global\excel\objects.txt, 0 1 or 2
+        //int cur_frame;
+        //int cur_dir;
+        //int spd_mul;
+        //int spd_div;
+        //int spd_mod; // = is (mul % div), for extra precision
+        //int orderflag; // from data\global\excel\objects.txt, 0 1 or 2
         byte[] Palette;
         public List<string> Armor = new List<string>();
         static string[] LayerType = {
@@ -124,6 +124,12 @@ namespace Diablo2RProject.Diablo
                 }
                 LayerDirBounds[d] = boundingBox;
                 reader.ReadBytes(optionalBytesCount);
+
+                //if (optionalBytesBits > 0)
+                //{
+                //    bs.Align();
+                //    bs.Read(optionalBytesBits * 8);
+                //}
 
                 var stillBlocksStream = new BitStream(bs.Buffer);
                 if (hasStillBlocks)
@@ -278,8 +284,8 @@ namespace Diablo2RProject.Diablo
                 for (int x = 0; x < blockXCount; x++)
                 {
                     var block = new MacroBlock();
-                    block.PosX = currWidth;
-                    block.PosY = currHeight;
+                    block.PosX = currWidth + frame.Offset.X;
+                    block.PosY = currHeight + frame.Offset.Y;
                     block.Width = 4;
                     block.Height = 4;
                     if (y == 0) block.Height = heightFirstRow;

@@ -34,5 +34,11 @@ namespace Diablo2RProject.Diablo
                 result |= ~((1 << bitCount) - 1);
             return result;
         }
+
+        public void Align()
+        {
+            if (Position % 8 != 0)
+                Position += 8 - Position % 8;
+        }
     }
 }
