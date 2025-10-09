@@ -102,7 +102,6 @@ namespace Diablo2RProject.Diablo
                 seq[d] = frames;
                 var optionalBytesCount = 0;
                 var boundingBox = new Rectangle();
-
                 for (var f = 0; f < frames.Length; f++)
                 {
                     var frame = new TFrame();
@@ -232,37 +231,73 @@ namespace Diablo2RProject.Diablo
                         }
                 }
                 //Stage 2
-                for (int f = 0; f < frames.Length; f++)
+                TPixmap prevPixmap = null;
+                for (var f = 0; f < frames.Length; f++)
                 {
-                    var pixMap = new TPixmap(boundingBox.Width, boundingBox.Height);
-                    var blocks = framesBlocks[f];
-                    for (int blockY = 0; blockY < blocks.GetLength(0); blockY++)
-                        for (int blockX = 0; blockX < blocks.GetLength(1); blockX++)
-                        {
-                            var block = blocks[blockY, blockX];
-                            for (int y = 0; y <block.Height; y++)
-                                for (int x = 0; x < block.Width; x++)
+                    var pixmap = new TPixmap(boundingBox.Width, boundingBox.Height);
+                    //Dlaczego foreach zadziałał, a podwójna pętla for po blockY oraz blockX nie?
+                    foreach (var block in framesBlocks[f])
+                    {
+                        for (int y = 0; y < block.Height; y++)
+                            for (int x = 0; x < block.Width; x++)
+                            {
+                                int color = 0;
+                                if (block.IsStill)
+                                    color = prevPixmap[block.PosX + x, block.PosY + y];
+                                else
                                 {
-                                    if (block.IsStill)
-                                    {
-
-                                    }
-                                    else
-                                    {
-                                        var bitCount = 2;
-                                        if (block.PixelValues[0] == block.PixelValues[1])
-                                            bitCount = 0;
-                                        else if (block.PixelValues[1] == block.PixelValues[2])
-                                            bitCount = 1;
-
-                                        var code = pixelCodesStream.Read(bitCount);
-                                        var color = TDiabloMap.Palette[block.PixelValues[code]];
-                                        pixMap[block.PosX + x, block.PosY + y] = color;
-                                    }
+                                    var bitCount = 2;
+                                    if (block.PixelValues[0] == block.PixelValues[1])
+                                        bitCount = 0;
+                                    else if (block.PixelValues[1] == block.PixelValues[2])
+                                        bitCount = 1;
+                                    var code = pixelCodesStream.Read(bitCount);
+                                    color = TDiabloMap.Palette[block.PixelValues[code]];
                                 }
-                        }
-                    frames[f].Image = pixMap.Image;
+                                pixmap[block.PosX + x, block.PosY + y] = color;
+                            }
+                    }
+                    frames[f].Image = pixmap.Image;
+                    prevPixmap = pixmap;
                 }
+
+                //Stage 2
+                //TPixmap prevPixmap = null;
+                //for (int f = 0; f < frames.Length; f++)
+                //{
+                //    var pixMap = new TPixmap(boundingBox.Width, boundingBox.Height);
+                //    var blocks = framesBlocks[f];
+                //    for (int blockY = 0; blockY < blocks.GetLength(0); blockY++)
+                //    {
+                //        for (int blockX = 0; blockX < blocks.GetLength(1); blockX++)
+                //        {
+                //            var block = blocks[blockY, blockX];
+                //            for (int y = 0; y < block.Height; y++)
+                //                for (int x = 0; x < block.Width; x++)
+                //                {
+                //                    int color = 0;
+                //                    if (block.IsStill)
+                //                    {
+                //                        color = prevPixmap[block.PosX + x, block.PosY + y];
+                //                    }
+                //                    else
+                //                    {
+                //                        var bitCount = 2;
+                //                        if (block.PixelValues[0] == block.PixelValues[1])
+                //                            bitCount = 0;
+                //                        else if (block.PixelValues[1] == block.PixelValues[2])
+                //                            bitCount = 1;
+
+                //                        var code = pixelCodesStream.Read(bitCount);
+                //                        color = TDiabloMap.Palette[block.PixelValues[code]];
+                //                        pixMap[block.PosX + x, block.PosY + y] = color;
+                //                    }
+                //                }
+                //        }
+                //    }
+                //    frames[f].Image = pixMap.Image;
+                //    prevPixmap = pixMap;
+                //}
             }
         }
 
@@ -323,19 +358,10 @@ namespace Diablo2RProject.Diablo
                 Array.Copy(buffer, 256 * (PaletteIdx - 1), Palette, 0, Palette.Length);
             }
 
-            // layers
             LayersCount = reader.ReadByte();
-
-            // frames per direction
             FramesCount = reader.ReadByte();
-
-            // directions
             DirectionCount = reader.ReadByte();
-
-            // skip 25 unknown bytes
             reader.ReadBytes(25);
-
-            // layers infos
             var dirBounds = new Rectangle[DirectionCount];
             for (var i = 0; i < LayersCount; i++)
             {
@@ -365,7 +391,6 @@ namespace Diablo2RProject.Diablo
                     dccName = dccName.Substring(0, dccName.Length - 1) + "6";
                     //ReadDc6(new FileStream(dccName, FileMode.Open));
                 }
-
                 if (i == 0)
                     dirBounds = (Rectangle[])LayerDirBounds.Clone();
                 else
@@ -374,6 +399,8 @@ namespace Diablo2RProject.Diablo
                         dirBounds[d] = Rectangle.Union(dirBounds[d], LayerDirBounds[d]);
                     }
             }
+            // skip flags of each frames
+            reader.ReadBytes(FramesCount);
             var seq = new TFrame[DirectionCount][];
             for (int d = 0; d < DirectionCount; d++)
             {
@@ -397,9 +424,6 @@ namespace Diablo2RProject.Diablo
             }
             Sequences.Clear();
             Sequences.Add(seq);
-
-            // skip flags of each frames
-            reader.ReadBytes(FramesCount);
 
             // priority layer
             priority = reader.ReadBytes(DirectionCount * FramesCount * LayersCount);
@@ -545,7 +569,6 @@ namespace Diablo2RProject.Diablo
             //        printf("object %s orderflag = %li\n", name, cof->orderflag);
             //    }
             //}
-        
         }
     }
 }

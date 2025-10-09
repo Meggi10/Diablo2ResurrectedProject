@@ -416,7 +416,7 @@ namespace Diablo2RProject
                 obj.Id = reader.ReadInt32();
                 var x = reader.ReadInt32();
                 var y = reader.ReadInt32();
-                var pos = TransformGrid(x - 4,y - 1);
+                var pos = TransformGrid(x - 4, y - 1);
                 var cell = new TCell();
                 cell.X = (int)pos.X;
                 cell.Y = (int)pos.Y;
