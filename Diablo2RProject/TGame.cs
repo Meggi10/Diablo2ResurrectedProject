@@ -125,6 +125,12 @@ namespace Diablo2RProject
                 map.Width = 2 * posX / TCell.Width + 4;
                 map.Height = 2 * posY / TCell.Height + 2;
             }
+            else if (ext == ".cof")
+            {
+                var map = new TDiabloMap();
+                map.Game = this;
+                map.MapAnimation(filename);
+            }
         }
 
         public void OnEvent(int eventIdx)
