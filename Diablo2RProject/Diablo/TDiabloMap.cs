@@ -129,6 +129,54 @@ namespace Diablo2RProject
             }
         }
 
+        public void MapAnimation(string filename)
+        {
+            ReadPalette(filename);
+            var animation = new DiabloAnimation();
+            //animation.BasePath = Path.GetDirectoryName(Path.GetDirectoryName(BasePath));
+            var dirName = Path.GetDirectoryName(Path.GetDirectoryName(filename));
+            foreach (var dir in Directory.GetDirectories(dirName))
+            {
+                var layer = Path.GetFileName(dir).ToUpper();
+                var layerIdx = Array.IndexOf(DiabloAnimation.LayerType, layer);
+                if (layerIdx < 0) continue;
+                var layerFiles = Directory.GetFiles(dir);
+                var layerFile = Path.GetFileName(layerFiles[TGame.Random.Next(layerFiles.Length)]);
+                animation.Armor[layerIdx] = layerFile.Substring(4, 3);
+            }
+            filename = Path.GetFileName(filename);
+            animation.Name = filename;
+            animation.Token = filename.Substring(0, 2);
+            animation.Mode = filename.Substring(2, 2);
+            animation.ClassType = filename.Substring(4, 3);
+            animation.Read();
+            Game.Animations.Add(animation);
+            var posX = 0;
+            var posY = 0;
+            for (var j = 0; j < animation.Sequences.Count; j++)
+            {
+                var sequence = animation.Sequences[j];
+                posX = 0;
+                for (var k = 0; k < sequence.Length; k++)
+                {
+                    var sprite = new TSprite();
+                    sprite.Animation = animation;
+                    sprite.Sequence = j;
+                    sprite.ViewAngle = k;
+                    var width = sprite.ActFrame.Bounds.Width;
+                    var height = sprite.ActFrame.Bounds.Height;
+                    sprite.X = posX;
+                    sprite.Y = posY;
+                    posX += 2 * width;
+                    sprite.Bounds = new Rectangle(sprite.X, sprite.Y, width, height);
+                    Game.Sprites.Add(sprite);
+                }
+                posY += 2 * sequence[0][0].Bounds.Height;
+            }
+            Width = 2 * posX / TCell.Width + 4;
+            Height = 2 * posY / TCell.Height + 2;
+        }
+
         public enum TVersion
         {
             HasFiles = 3,
@@ -167,18 +215,19 @@ namespace Diablo2RProject
             actName = Path.GetFileName(actName).ToLower();
             if (!actName.StartsWith("act"))
                 actName = "Units";
-            var palPath = GamePath + "\\D2\\Data\\Global\\Palette\\" + actName + "\\pal.pl2";
+            var palPath = GamePath + "\\D2\\Data\\Global\\Palette\\" + actName + "\\pal.dat";
             var fStream = new FileStream(palPath, FileMode.Open, FileAccess.Read);
             var reader = new BinaryReader(fStream);
             Palette = new int[256];
             for (int i = 0; i < Palette.Length; i++)
             {
-                var r = reader.ReadByte();
-                var g = reader.ReadByte();
                 var b = reader.ReadByte();
-                var a = reader.ReadByte();
+                var g = reader.ReadByte();
+                var r = reader.ReadByte();
+                var a = r + g + b > 0 ? 255 : 0;
+                //var a = reader.ReadByte();
                 //if (r + g + b > 0) a = 255;
-                Palette[i] = Color.FromArgb(r, g, b).ToArgb();
+                Palette[i] = Color.FromArgb(a, r, g, b).ToArgb();
             }
             fStream.Close();
         }
