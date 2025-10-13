@@ -43,7 +43,7 @@ namespace Diablo2RProject.Diablo
         public string Token;
         public string Mode;
         public string ClassType;
-        public string BasePath;
+        public string BasePath = "monsters";
         public int PaletteIdx;
         byte LayersCount;
         byte FramesCount;
@@ -59,7 +59,8 @@ namespace Diablo2RProject.Diablo
         //int spd_mod; // = is (mul % div), for extra precision
         //int orderflag; // from data\global\excel\objects.txt, 0 1 or 2
         byte[] Palette;
-        public List<string> Armor = new List<string>();
+        //public List<string> Armor = new List<string>();
+        public string[] Armor = new string[LayerType.Length];
         public static string[] LayerType = {
             "HD", "TR", "LG", "RA", "LA", "RH", "LH", "SH",
             "S1", "S2", "S3","S4", "S5", "S6", "S7", "S8"};
@@ -325,6 +326,7 @@ namespace Diablo2RProject.Diablo
             var framesBlocksCount = new int[directionsCount, framesCount];
             var seq = new TFrame[directionsCount][];
             Sequences.Add(seq);
+            LayerDirBounds = new Rectangle[directionsCount];
             for (int d = 0; d < directionsCount; d++)
             {
                 var dir = new TFrame[framesCount];
@@ -380,6 +382,7 @@ namespace Diablo2RProject.Diablo
             }
         }
 
+        //COF files
         public void Read()
         {
             Name = $"{Token}{Mode}{ClassType}";
@@ -405,16 +408,11 @@ namespace Diablo2RProject.Diablo
             var dirBounds = new Rectangle[DirectionCount];
             for (var i = 0; i < LayersCount; i++)
             {
-                // composit index
                 var armorIdx = reader.ReadByte();
-
-                // shadows
                 var shad_a = reader.ReadByte();
                 var shad_b = reader.ReadByte();
                 var transparency_a = reader.ReadByte();
                 var transparency_b = reader.ReadByte();
-
-                // weapon class (used to know a part of the dcc name)
                 var wclass = TDiabloMap.ReadZString(reader);
                 var armor = Armor[armorIdx];
                 var layerType = LayerType[armorIdx];
@@ -427,7 +425,7 @@ namespace Diablo2RProject.Diablo
                 else
                 {
                     dccName = dccName.Substring(0, dccName.Length - 4) + ".dc6";
-                    //ReadDc6(new FileStream(dccName, FileMode.Open));
+                    ReadDc6(new FileStream(dccName, FileMode.Open));
                 }
                 if (i == 0)
                     dirBounds = (Rectangle[])LayerDirBounds.Clone();

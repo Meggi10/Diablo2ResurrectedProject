@@ -484,7 +484,8 @@ namespace Diablo2RProject
                     anim.BasePath = type == 0 ? "Monsters" : "Objects";
                     int.TryParse(objInfo[idx][palIdx], out anim.PaletteIdx);
                     for (var a = 0; a < 16; a++)
-                        anim.Armor.Add(objInfo[idx][armorIdx + a]);
+                        //anim.Armor.Add(objInfo[idx][armorIdx + a]);
+                        anim.Armor[a] = objInfo[obj.Id][armorIdx];
                     anim.Index = idx;
                     anim.Read();
                     obj.Animation = anim;

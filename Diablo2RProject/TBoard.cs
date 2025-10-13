@@ -81,6 +81,7 @@ namespace Diablo2RProject
 
         public TCell CellAtPos(PointF p)
         {
+            Game.Cells = new TCell[Game.Map.Height, Game.Map.Width];
             //p.X -= TGame.TileWidth;
             //p.Y -= TGame.TileHeight;
             p = Unproject(p);
