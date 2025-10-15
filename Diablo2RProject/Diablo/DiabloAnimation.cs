@@ -24,21 +24,6 @@ namespace Diablo2RProject.Diablo
             public int Width, Height;
             public bool IsStill;
         }
-        struct LAY_INF_S
-        {
-            byte shad_a;
-            byte shad_b;
-            byte trans_a;
-            byte trans_b;
-            string wclass;
-
-            // editor only
-            int bmp_num;
-            //BITMAP** bmp;
-            int off_x;
-            int off_y;
-            int last_good_frame;
-        }
 
         public string Token;
         public string Mode;
@@ -48,19 +33,10 @@ namespace Diablo2RProject.Diablo
         byte LayersCount;
         byte FramesCount;
         byte DirectionCount;
-        //int xoffset;
-        //int yoffset;
-        LAY_INF_S[] lay_inf;
         byte[] priority;
-        //int cur_frame;
-        //int cur_dir;
-        //int spd_mul;
-        //int spd_div;
-        //int spd_mod; // = is (mul % div), for extra precision
-        //int orderflag; // from data\global\excel\objects.txt, 0 1 or 2
         byte[] Palette;
-        //public List<string> Armor = new List<string>();
-        public string[] Armor = new string[LayerType.Length];
+        public List<string> Armor = new List<string>(new string[16]);
+        //public string[] Armor = new string[LayerType.Length];
         public static string[] LayerType = {
             "HD", "TR", "LG", "RA", "LA", "RH", "LH", "SH",
             "S1", "S2", "S3","S4", "S5", "S6", "S7", "S8"};
@@ -130,12 +106,6 @@ namespace Diablo2RProject.Diablo
                 }
                 LayerDirBounds[d] = boundingBox;
                 reader.ReadBytes(optionalBytesCount);
-
-                //if (optionalBytesBits > 0)
-                //{
-                //    bs.Align();
-                //    bs.Read(optionalBytesBits * 8);
-                //}
 
                 var stillBlocksStream = new BitStream(bs.Buffer);
                 if (hasStillBlocks)
@@ -419,9 +389,7 @@ namespace Diablo2RProject.Diablo
                 var dccName = $"{basePath}{layerType}/{Token}{layerType}{armor}{Mode}{wclass}.dcc";
 
                 if (File.Exists(dccName))
-                {
                     ReadDcc(new FileStream(dccName, FileMode.Open));
-                }
                 else
                 {
                     dccName = dccName.Substring(0, dccName.Length - 4) + ".dc6";

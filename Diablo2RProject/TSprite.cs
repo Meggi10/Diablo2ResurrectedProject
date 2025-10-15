@@ -39,8 +39,8 @@ namespace Diablo2RProject
             {
                 viewAngleUnflipped = value;
                 Flipped = viewAngleUnflipped > 4;
-                if (Flipped)
-                    viewAngleUnflipped = 8 - viewAngleUnflipped;
+                //if (Flipped)
+                //    viewAngleUnflipped = 8 - viewAngleUnflipped;
             }
         }
         public TFrame[] Frames { get { return Animation.Sequences[Sequence][viewAngleUnflipped]; } }

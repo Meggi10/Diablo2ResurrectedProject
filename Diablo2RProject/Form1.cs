@@ -70,7 +70,7 @@ namespace Diablo2RProject
         {
             //ImportMap(filename);
             var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "DS1 Files (*.ds1)|*.ds1|DT1 Files (*.dt1)|*.dt1|All Files (*.*)|*.*";
+            openFileDialog.Filter = "DS1 Files (*.ds1)|*.ds1|DT1 Files (*.dt1)|*.dt1|COF Files (*.cof)|*.cof|All Files (*.*)|*.*";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
