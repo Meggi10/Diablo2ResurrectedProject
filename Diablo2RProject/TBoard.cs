@@ -277,6 +277,8 @@ namespace Diablo2RProject
                 for (int y_ = vp.Top; y_ < vp.Bottom; y_++)
                     for (int x_ = vp.Left; x_ < vp.Right; x_++)
                     {
+                        if (x_ < 0 || y_ < 0 || y_ >= Game.Cells.GetLength(0) || x_ >= Game.Cells.GetLength(1))
+                            continue;
                         //var x = x_;// + (y_ & 1);
                         //var y = 2 * y_ + (x & 1);// (y_ - (x_ & 1)) / 2;
                         //var rc = new Rectangle((x - 1) * sx, (y - 1) * sy / 2, 2 * sx, sy);
