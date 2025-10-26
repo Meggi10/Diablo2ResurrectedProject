@@ -37,7 +37,7 @@ namespace Diablo2RProject.Diablo
         byte[] Palette;
         public List<string> Armor = new List<string>(new string[16]);
         //public string[] Armor = new string[LayerType.Length];
-        public static string[] LayerType = {
+        public static string[] LayerNames = {
             "HD", "TR", "LG", "RA", "LA", "RH", "LH", "SH",
             "S1", "S2", "S3","S4", "S5", "S6", "S7", "S8"};
         static int[] FrameBitsCount = { 0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 26, 28, 30, 32 };
@@ -385,7 +385,7 @@ namespace Diablo2RProject.Diablo
                 var transparency_b = reader.ReadByte();
                 var wclass = TDiabloMap.ReadZString(reader);
                 var armor = Armor[armorIdx];
-                var layerType = LayerType[armorIdx];
+                var layerType = LayerNames[armorIdx];
                 var dccName = $"{basePath}{layerType}/{Token}{layerType}{armor}{Mode}{wclass}.dcc";
 
                 if (File.Exists(dccName))

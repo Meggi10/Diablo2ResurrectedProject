@@ -19,10 +19,10 @@ namespace Diablo2RProject
 {
     public partial class DiabloForm : Form
     {
-        private DS1 loadedDS1;
-        private DT1 loadedDT1;
-        private Tile tile;
-        private byte[] fileData;
+        //private DS1 loadedDS1;
+        //private DT1 loadedDT1;
+        //private Tile tile;
+        //private byte[] fileData;
         TGame Game = new TGame();
         //private Dictionary<(int Type, int Style, int Sequence), Tile> tileLookup;
         public DiabloForm()
@@ -31,7 +31,6 @@ namespace Diablo2RProject
             tBoard1.Game = Game;
             tBoard1.MouseWheel += TBoard1_MouseWheel;
             Game.MapView = new Bitmap (MapView.Width, MapView.Height);
-
         }
 
         private void TBoard1_MouseWheel(object sender, MouseEventArgs e)
