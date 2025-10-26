@@ -131,6 +131,7 @@ namespace Diablo2RProject
 
         public void MapAnimation(string filename)
         {
+            Game.Sprites.Clear();
             ReadPalette(filename);
             var animation = new DiabloAnimation();
             //animation.BasePath = Path.GetDirectoryName(Path.GetDirectoryName(BasePath));
@@ -138,7 +139,7 @@ namespace Diablo2RProject
             foreach (var dir in Directory.GetDirectories(dirName))
             {
                 var layer = Path.GetFileName(dir).ToUpper();
-                var layerIdx = Array.IndexOf(DiabloAnimation.LayerType, layer);
+                var layerIdx = Array.IndexOf(DiabloAnimation.LayerNames, layer);
                 if (layerIdx < 0) continue;
                 var layerFiles = Directory.GetFiles(dir);
                 var layerFile = Path.GetFileName(layerFiles[TGame.Random.Next(layerFiles.Length)]);
