@@ -304,12 +304,15 @@ namespace Diablo2RProject.Diablo
                 var bounds = new Rectangle();
                 for (int f = 0; f < framesCount; f++)
                 {
+                    reader.ReadBytes(frameHeadersFilePos[d * framesCount + f] - (int)reader.BaseStream.Position);
                     var frame = new TFrame();
                     var frmBottomUp = reader.ReadInt32();
                     frame.Bounds.Width = reader.ReadInt32();
                     frame.Bounds.Height = reader.ReadInt32();
                     frame.Bounds.X = reader.ReadInt32();
                     frame.Bounds.Y = reader.ReadInt32();
+                    if (frmBottomUp == 0)
+                        frame.Bounds.Y -= frame.Bounds.Height - 1;
                     var frmDecodedSize = reader.ReadInt32();
                     var nextBlock = reader.ReadInt32();
                     framesBlocksCount[d, f] = reader.ReadInt32();
@@ -337,11 +340,11 @@ namespace Diablo2RProject.Diablo
                         }
                         else
                         {
-                            for (x = 0; x < blockSize; x++)
+                            for (var i = 0; i < blockSize; i++)
                             {
-                                pixmap[x, y] = TDiabloMap.Palette[reader.ReadByte()];
+                                pixmap[x + i, y] = TDiabloMap.Palette[reader.ReadByte()];
                             }
-                            rawIdx += blockSize;
+                            x += blockSize;
                         }
                     }
                     reader.ReadBytes(3);
