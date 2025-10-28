@@ -24,6 +24,7 @@ namespace Diablo2RProject
         Vector2 GridOffset;
         int WorldHeight;
         int WorldWidth;
+        string BasePath = "tiles";
         public void ReadTileSet(string filename, string ext)
         {
             filename = filename.Substring(0, filename.Length - 4) + ext;
