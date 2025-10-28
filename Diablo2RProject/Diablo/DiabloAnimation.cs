@@ -28,13 +28,16 @@ namespace Diablo2RProject.Diablo
         public string Token;
         public string Mode;
         public string ClassType;
-        public string BasePath = "monsters";
+        public string BasePath;
         public int PaletteIdx;
         byte LayersCount;
         byte FramesCount;
         byte DirectionCount;
         byte[] priority;
         byte[] Palette;
+        string[] possiblePaths = { "monsters", "objects" };
+        string basePath = null;
+        string fileName = null;
         public List<string> Armor = new List<string>(new string[16]);
         //public string[] Armor = new string[LayerType.Length];
         public static string[] LayerNames = {
@@ -359,8 +362,19 @@ namespace Diablo2RProject.Diablo
         public void Read()
         {
             Name = $"{Token}{Mode}{ClassType}";
-            var basePath = $"{TDiabloMap.GamePath}/D2/data/global/{BasePath}/{Token}/";
-            var fileName = $"{basePath}cof/{Name}.cof";
+            //var basePath = $"{TDiabloMap.GamePath}/D2/data/global/{BasePath}/{Token}/";
+            //var fileName = $"{basePath}cof/{Name}.cof";
+            foreach (var path in possiblePaths)
+            {
+                basePath = $"{TDiabloMap.GamePath}/D2/data/global/{path}/{Token}/";
+                fileName = $"{basePath}cof/{Name}.cof";
+
+                if (File.Exists(fileName))
+                {
+                    BasePath = path;
+                    break;
+                }
+            }
             var s = new FileStream(fileName, FileMode.Open);
             var reader = new BinaryReader(s);
             var palPath = TDiabloMap.GamePath + "/D2/data/global/monsters/randtransforms.dat";
