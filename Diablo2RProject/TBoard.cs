@@ -81,7 +81,7 @@ namespace Diablo2RProject
 
         public TCell CellAtPos(PointF p)
         {
-            Game.Cells = new TCell[Game.Map.Height, Game.Map.Width];
+            //Game.Cells = new TCell[Game.Map.Height, Game.Map.Width]; //powodowało zanikanie kafelków
             //p.X -= TGame.TileWidth;
             //p.Y -= TGame.TileHeight;
             p = Unproject(p);
@@ -90,7 +90,7 @@ namespace Diablo2RProject
             var v = TDispelMap.YUnHex(new Vector2(p.X, p.Y));
             if (v.X < 0 || v.X >= Game.Map.Width) return null;
             if (v.Y < 0 || v.Y >= Game.Map.Height) return null;
-            return Game.Cells[(int)v.Y, (int)v.X];
+            return Game.Cells[(int)v.Y, (int)v.X]; //przy przesuwaniu wyrzuca błąd - pliki animacji, a dla map działa poprawnie
         }
 
         public int DialogId;
