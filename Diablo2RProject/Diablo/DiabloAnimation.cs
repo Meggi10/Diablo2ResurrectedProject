@@ -36,10 +36,12 @@ namespace Diablo2RProject.Diablo
         byte[] priority;
         byte[] Palette;
         string[] possiblePaths = { "monsters", "objects" };
-        string basePath = null;
-        string fileName = null;
-        public List<string> Armor = new List<string>(new string[16]);
-        //public string[] Armor = new string[LayerType.Length];
+        //string basePath = null;
+        //string fileName = null;
+        public List<string> Armor = new List<string>(); // działa dla map
+        //public List<string> Armor = new List<string>(new string[16]); //działa dla samych plików animacji
+        //public List<string> Armor = new List<string>(LayerNames.Length); //tutaj Count dla Armor zawsze był 0
+        //public string[] Armor = new string[LayerNames.Length];
         public static string[] LayerNames = {
             "HD", "TR", "LG", "RA", "LA", "RH", "LH", "SH",
             "S1", "S2", "S3","S4", "S5", "S6", "S7", "S8"};
@@ -362,8 +364,8 @@ namespace Diablo2RProject.Diablo
         public void Read()
         {
             Name = $"{Token}{Mode}{ClassType}";
-            //var basePath = $"{TDiabloMap.GamePath}/D2/data/global/{BasePath}/{Token}/";
-            //var fileName = $"{basePath}cof/{Name}.cof";
+            var basePath = $"{TDiabloMap.GamePath}/D2/data/global/{BasePath}/{Token}/";
+            var fileName = $"{basePath}cof/{Name}.cof";
             foreach (var path in possiblePaths)
             {
                 basePath = $"{TDiabloMap.GamePath}/D2/data/global/{path}/{Token}/";
